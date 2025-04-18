@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { CircleDot, Medal, Star, Edit2, X } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import type { Problem } from "@/types";
 
 interface ProblemGridProps {
