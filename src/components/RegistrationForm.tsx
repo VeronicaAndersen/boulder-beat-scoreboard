@@ -9,9 +9,10 @@ import type { RegistrationData } from "@/types";
 
 interface RegistrationFormProps {
   grades: { id: number; name: string }[];
+  onSubmit: (data: RegistrationData) => void;
 }
 
-export function RegistrationForm({ grades }: RegistrationFormProps) {
+export function RegistrationForm({ grades, onSubmit }: RegistrationFormProps) {
   const [formData, setFormData] = useState<RegistrationData>({
     name: "",
     email: "",
@@ -20,8 +21,7 @@ export function RegistrationForm({ grades }: RegistrationFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Registration submitted:", formData);
-    setFormData({ name: "", email: "", selectedGrade: 0 });
+    onSubmit(formData);
   };
 
   return (

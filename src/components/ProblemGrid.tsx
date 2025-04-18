@@ -2,8 +2,9 @@
 import { useState } from "react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
-import { CircleDot, Medal, Star } from "lucide-react";
+import { CircleDot, Medal, Star, Edit2, X } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { Input } from "./ui/input";
 import type { Problem } from "@/types";
 
 interface ProblemGridProps {
@@ -19,47 +20,39 @@ export function ProblemGrid({ problems: initialProblems }: ProblemGridProps) {
       topAttempt: p.topAttempt || null,
     }))
   );
+  const [editingProblem, setEditingProblem] = useState<number | null>(null);
+  const [editValues, setEditValues] = useState<{
+    attempts: number;
+    bonusAttempt: number | null;
+    topAttempt: number | null;
+  }>({ attempts: 0, bonusAttempt: null, topAttempt: null });
 
-  const handleAttempt = (problemId: number) => {
-    setProblems(currentProblems =>
-      currentProblems.map(problem => {
-        if (problem.id === problemId) {
-          return {
-            ...problem,
-            attempts: problem.attempts + 1,
-          };
-        }
-        return problem;
-      })
-    );
+  const handleEditStart = (problem: Problem) => {
+    setEditingProblem(problem.id);
+    setEditValues({
+      attempts: problem.attempts,
+      bonusAttempt: problem.bonusAttempt,
+      topAttempt: problem.topAttempt,
+    });
   };
 
-  const handleBonus = (problemId: number) => {
+  const handleEditSave = () => {
+    if (editingProblem === null) return;
+    
     setProblems(currentProblems =>
       currentProblems.map(problem => {
-        if (problem.id === problemId && !problem.bonusAttempt) {
+        if (problem.id === editingProblem) {
           return {
             ...problem,
-            bonusAttempt: problem.attempts,
+            attempts: editValues.attempts,
+            bonusAttempt: editValues.bonusAttempt,
+            topAttempt: editValues.topAttempt,
           };
         }
         return problem;
       })
     );
-  };
-
-  const handleTop = (problemId: number) => {
-    setProblems(currentProblems =>
-      currentProblems.map(problem => {
-        if (problem.id === problemId && !problem.topAttempt) {
-          return {
-            ...problem,
-            topAttempt: problem.attempts,
-          };
-        }
-        return problem;
-      })
-    );
+    setEditingProblem(null);
   };
 
   return (
@@ -99,36 +92,86 @@ export function ProblemGrid({ problems: initialProblems }: ProblemGridProps) {
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
-            <CircleDot className="w-4 h-4" />
-            <span className="text-sm">Attempts: {problem.attempts}</span>
-          </div>
+          {editingProblem === problem.id ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="attempts">Attempts:</Label>
+                <Input
+                  id="attempts"
+                  type="number"
+                  min="0"
+                  value={editValues.attempts}
+                  onChange={(e) => setEditValues({
+                    ...editValues,
+                    attempts: parseInt(e.target.value) || 0
+                  })}
+                  className="w-20"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="bonus">Bonus attempt:</Label>
+                <Input
+                  id="bonus"
+                  type="number"
+                  min="0"
+                  value={editValues.bonusAttempt || ''}
+                  onChange={(e) => setEditValues({
+                    ...editValues,
+                    bonusAttempt: e.target.value ? parseInt(e.target.value) : null
+                  })}
+                  className="w-20"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="top">Top attempt:</Label>
+                <Input
+                  id="top"
+                  type="number"
+                  min="0"
+                  value={editValues.topAttempt || ''}
+                  onChange={(e) => setEditValues({
+                    ...editValues,
+                    topAttempt: e.target.value ? parseInt(e.target.value) : null
+                  })}
+                  className="w-20"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingProblem(null)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEditSave}
+                >
+                  Save
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <CircleDot className="w-4 h-4" />
+                <span className="text-sm">Attempts: {problem.attempts}</span>
+              </div>
 
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleAttempt(problem.id)}
-            >
-              Try
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleBonus(problem.id)}
-              disabled={!!problem.bonusAttempt}
-            >
-              Bonus
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleTop(problem.id)}
-              disabled={!!problem.topAttempt}
-            >
-              Top
-            </Button>
-          </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleEditStart(problem)}
+                >
+                  <Edit2 className="w-4 h-4 mr-1" />
+                  Edit
+                </Button>
+              </div>
+            </>
+          )}
         </Card>
       ))}
     </div>

@@ -1,7 +1,8 @@
-
+import { useState } from "react";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { GradeSection } from "@/components/GradeSection";
-import type { Grade } from "@/types";
+import type { Grade, RegistrationData } from "@/types";
+import { useToast } from "@/hooks/use-toast";
 
 const grades: Grade[] = [
   {
@@ -91,6 +92,19 @@ const grades: Grade[] = [
 ];
 
 const Index = () => {
+  const [registeredUser, setRegisteredUser] = useState<RegistrationData | null>(null);
+  const { toast } = useToast();
+
+  const handleRegistration = (data: RegistrationData) => {
+    setRegisteredUser(data);
+    toast({
+      title: "Registration successful",
+      description: `Welcome ${data.name}! You're registered for the ${grades.find(g => g.id === data.selectedGrade)?.name} grade.`,
+    });
+  };
+
+  const selectedGrade = grades.find(g => g.id === registeredUser?.selectedGrade);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-[#6E59A5] text-gray-100">
       <div className="container mx-auto py-12 px-4">
@@ -98,18 +112,21 @@ const Index = () => {
           Climbing Competition
         </h1>
         
-        <div className="mb-12">
-          <h2 className="text-2xl font-semibold text-center mb-6">Register Now</h2>
-          <div className="flex justify-center">
-            <RegistrationForm grades={grades.map(({ id, name }) => ({ id, name }))} />
+        {!registeredUser ? (
+          <div className="mb-12">
+            <h2 className="text-2xl font-semibold text-center mb-6">Register Now</h2>
+            <div className="flex justify-center">
+              <RegistrationForm 
+                grades={grades.map(({ id, name }) => ({ id, name }))} 
+                onSubmit={handleRegistration}
+              />
+            </div>
           </div>
-        </div>
-
-        <div className="space-y-8">
-          {grades.map((grade) => (
-            <GradeSection key={grade.id} grade={grade} />
-          ))}
-        </div>
+        ) : (
+          <div className="space-y-8">
+            {selectedGrade && <GradeSection grade={selectedGrade} />}
+          </div>
+        )}
       </div>
     </div>
   );
