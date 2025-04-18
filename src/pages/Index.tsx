@@ -11,6 +11,9 @@ const grades: Grade[] = [
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
       name: `Problem ${i + 1}`,
+      attempts: 0,
+      bonusAttempt: null,
+      topAttempt: null,
     })),
   },
   {
@@ -20,6 +23,9 @@ const grades: Grade[] = [
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
       name: `Problem ${i + 1}`,
+      attempts: 0,
+      bonusAttempt: null,
+      topAttempt: null,
     })),
   },
   {
@@ -29,6 +35,9 @@ const grades: Grade[] = [
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
       name: `Problem ${i + 1}`,
+      attempts: 0,
+      bonusAttempt: null,
+      topAttempt: null,
     })),
   },
   {
@@ -38,6 +47,9 @@ const grades: Grade[] = [
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
       name: `Problem ${i + 1}`,
+      attempts: 0,
+      bonusAttempt: null,
+      topAttempt: null,
     })),
   },
   {
@@ -47,6 +59,9 @@ const grades: Grade[] = [
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
       name: `Problem ${i + 1}`,
+      attempts: 0,
+      bonusAttempt: null,
+      topAttempt: null,
     })),
   },
   {
@@ -56,6 +71,9 @@ const grades: Grade[] = [
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
       name: `Problem ${i + 1}`,
+      attempts: 0,
+      bonusAttempt: null,
+      topAttempt: null,
     })),
   },
   {
@@ -65,6 +83,9 @@ const grades: Grade[] = [
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
       name: `Problem ${i + 1}`,
+      attempts: 0,
+      bonusAttempt: null,
+      topAttempt: null,
     })),
   },
 ];

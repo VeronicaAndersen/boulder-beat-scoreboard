@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { CircleDot, Medal, Star } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import type { Problem } from "@/types";
 
 interface ProblemGridProps {
@@ -13,9 +14,9 @@ export function ProblemGrid({ problems: initialProblems }: ProblemGridProps) {
   const [problems, setProblems] = useState(
     initialProblems.map(p => ({
       ...p,
-      attempts: 0,
-      bonusAttempt: null,
-      topAttempt: null,
+      attempts: p.attempts || 0,
+      bonusAttempt: p.bonusAttempt || null,
+      topAttempt: p.topAttempt || null,
     }))
   );
 
@@ -72,10 +73,28 @@ export function ProblemGrid({ problems: initialProblems }: ProblemGridProps) {
             <h3 className="font-semibold">{problem.name}</h3>
             <div className="flex items-center gap-2">
               {problem.bonusAttempt && (
-                <Medal className="w-5 h-5 text-yellow-500" title={`Bonus on attempt ${problem.bonusAttempt}`} />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Medal className="w-5 h-5 text-yellow-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Bonus on attempt {problem.bonusAttempt}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
               {problem.topAttempt && (
-                <Star className="w-5 h-5 text-green-500" title={`Top on attempt ${problem.topAttempt}`} />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Star className="w-5 h-5 text-green-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Top on attempt {problem.topAttempt}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
             </div>
           </div>
