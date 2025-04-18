@@ -1,11 +1,12 @@
-
 import { useState } from "react";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import type { RegistrationData } from "@/types";
+import { GradeSection } from "./GradeSection";
 
 interface RegistrationFormProps {
   grades: { id: number; name: string }[];
@@ -16,8 +17,19 @@ export function RegistrationForm({ grades, onSubmit }: RegistrationFormProps) {
   const [formData, setFormData] = useState<RegistrationData>({
     name: "",
     email: "",
+    date: new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "Europe/Stockholm",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .format(new Date())
+      .split(" ")
+      .join("-"),
     selectedGrade: 0,
   });
+
+  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +86,7 @@ export function RegistrationForm({ grades, onSubmit }: RegistrationFormProps) {
           </Select>
         </div>
 
-        <Button type="submit" className="w-full bg-[#6E59A5] hover:bg-[#5D4A94]">
+        <Button type="submit" className="w-full bg-[#505654] hover:bg-[#868f79]">
           Register
         </Button>
       </form>

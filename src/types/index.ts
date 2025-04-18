@@ -18,5 +18,6 @@ export type Grade = {
 export type RegistrationData = {
   name: string;
   email: string;
+  date: string;
   selectedGrade: number;
 };
