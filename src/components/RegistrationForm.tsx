@@ -4,9 +4,8 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import type { RegistrationData } from "@/types";
-import { GradeSection } from "./GradeSection";
+import { v4 as uuidv4 } from "uuid";
 
 interface RegistrationFormProps {
   grades: { id: number; name: string }[];
@@ -15,6 +14,7 @@ interface RegistrationFormProps {
 
 export function RegistrationForm({ grades, onSubmit }: RegistrationFormProps) {
   const [formData, setFormData] = useState<RegistrationData>({
+    id: uuidv4(),
     name: "",
     email: "",
     date: new Intl.DateTimeFormat("sv-SE", {

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
-import { CircleDot, Medal, Star, Edit2, X } from "lucide-react";
+import { Medal, Star } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -14,36 +14,41 @@ import type { Problem } from "@/types";
 
 interface ProblemGridProps {
   problems: Problem[];
+  registeredClimber: { id: string; name: string; email: string };
 }
 
-export function ProblemGrid({ problems: initialProblems }: ProblemGridProps) {
-  const [problems, setProblems] = useState(() => {
-    // Load problem attempts from localStorage
-    const storedAttempts = localStorage.getItem("problemAttempts");
-    return storedAttempts
-      ? JSON.parse(storedAttempts)
-      : initialProblems.map((p) => ({
-          ...p,
-          attempts: p.attempts || 0,
-          bonusAttempt: p.bonusAttempt || null,
-          topAttempt: p.topAttempt || null,
-        }));
-  });
+const LOCAL_STORAGE_KEY = "appData";
 
+export function ProblemGrid({ problems: initialProblems, registeredClimber: registeredClimber }: ProblemGridProps) {
+  const [problems, setProblems] = useState<Problem[]>([]);
+
+  // Load problem attempts from appData in localStorage when the component mounts
+  useEffect(() => {
+    const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      const climbAttempts = parsedData.problemAttempts?.[registeredClimber.id] || initialProblems;
+      setProblems(climbAttempts);
+    } else {
+      setProblems(initialProblems);
+    }
+  }, [initialProblems, registeredClimber.id]);
+
+  // Update problem attempts and save to appData in localStorage
   const updateProblem = (id: number, updates: Partial<Problem>) => {
     setProblems((currentProblems) => {
       const updatedProblems = currentProblems.map((problem) =>
         problem.id === id ? { ...problem, ...updates } : problem
       );
 
-      // Save updated attempts to localStorage
-      const registeredUser = JSON.parse(localStorage.getItem("registeredUser") || "{}");
-      if (registeredUser.name) {
-        localStorage.setItem(
-          "problemAttempts",
-          JSON.stringify(updatedProblems)
-        );
-      }
+      // Save updated problems to appData in localStorage
+      const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const parsedData = storedData ? JSON.parse(storedData) : {};
+      parsedData.problemAttempts = {
+        ...parsedData.problemAttempts,
+        [registeredClimber.id]: updatedProblems,
+      };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsedData));
 
       return updatedProblems;
     });
@@ -97,7 +102,7 @@ export function ProblemGrid({ problems: initialProblems }: ProblemGridProps) {
             </div>
           </div>
 
-          {/* Always show the edit fields */}
+          {/* Editable fields */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Label htmlFor={`attempts-${problem.id}`}>Attempts:</Label>

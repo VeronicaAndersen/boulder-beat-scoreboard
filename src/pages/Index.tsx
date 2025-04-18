@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import type { Grade, RegistrationData } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { RegistrationPage } from "@/components/RegistrationPage";
+import { v4 as uuidv4 } from "uuid";
 
 const grades: Grade[] = [
   {
@@ -89,54 +90,58 @@ const grades: Grade[] = [
     })),
   },
 ];
+
+const LOCAL_STORAGE_KEY = "appData";
+
 const Index = () => {
-  const [registeredUsers, setRegisteredUsers] = useState<RegistrationData[]>([]);
+  const [registeredClimbers, setRegisteredClimbers] = useState<RegistrationData[]>([]);
   const { toast } = useToast();
 
-  const handleRegistration = (data: RegistrationData) => {
-    setRegisteredUsers((prev) => [...prev, data]);
-
-    // Save user registration data in localStorage
-    localStorage.setItem("registeredUsers", JSON.stringify([...registeredUsers, data]));
-
-    toast({
-      title: "Registrering genomförd",
-      description: `Välkommen ${data.name}! Du har nu registrerat dig på ${grades.find(g => g.id === data.selectedGrade)?.name} nivå.`,
-    });
-  };
-
+  // Load data from localStorage on mount
   useEffect(() => {
-    const storedUsers = localStorage.getItem("registeredUsers");
-    if (storedUsers) {
-      setRegisteredUsers(JSON.parse(storedUsers));
+    const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      setRegisteredClimbers(parsedData.registeredClimbers || []);
     }
   }, []);
 
-  const handleGradeChange = (userIndex: number, newGradeId: number) => {
-    setRegisteredUsers((prevUsers) =>
-      prevUsers.map((user, index) =>
-        index === userIndex ? { ...user, selectedGrade: newGradeId } : user
-      )
-    );
+  // Save data to localStorage whenever registeredClimbers changes
+  useEffect(() => {
+    const appData = {
+      registeredClimbers: registeredClimbers,
+    };
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(appData));
+  }, [registeredClimbers]);
 
-    const updatedUsers = registeredUsers.map((user, index) =>
-      index === userIndex ? { ...user, selectedGrade: newGradeId } : user
-    );
-    localStorage.setItem("registeredUsers", JSON.stringify(updatedUsers));
+  const handleRegistration = (data: RegistrationData) => {
+    setRegisteredClimbers((prev) => [...prev, data]);
+
+    toast({
+      title: "Registrering genomförd",
+      description: `Välkommen ${data.name}! Du har nu registrerat dig på ${grades.find((g) => g.id === data.selectedGrade)?.name} nivå.`,
+    });
   };
 
-  const handleAddUser = () => {
-    setRegisteredUsers((prev) => {
+  const handleGradeChange = (climberIndex: number, newGradeId: number) => {
+    setRegisteredClimbers((prevClimbers) =>
+      prevClimbers.map((climber, index) =>
+        index === climberIndex ? { ...climber, selectedGrade: newGradeId } : climber
+      )
+    );
+  };
+
+  const handleAddClimber = () => {
+    setRegisteredClimbers((prev) => {
       if (prev.length < 2) {
-        const newUser = {
+        const newClimber = {
+          id: uuidv4(),
           name: "",
           email: "",
           date: new Date().toISOString().split("T")[0],
           selectedGrade: grades[0].id,
         };
-        const updatedUsers = [...prev, newUser];
-        localStorage.setItem("registeredUsers", JSON.stringify(updatedUsers));
-        return updatedUsers;
+        return [...prev, newClimber];
       }
       return prev;
     });
@@ -150,10 +155,10 @@ const Index = () => {
         </h1>
         <RegistrationPage
           grades={grades}
-          registeredUsers={registeredUsers}
+          registeredClimber={registeredClimbers}
           handleRegistration={handleRegistration}
           handleGradeChange={handleGradeChange}
-          handleAddUser={handleAddUser}
+          handleAddClimber={handleAddClimber}
         />
       </div>
     </div>

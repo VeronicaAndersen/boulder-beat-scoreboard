@@ -6,24 +6,24 @@ import type { Grade, RegistrationData } from "@/types";
 
 interface RegistrationPageProps {
   grades: Grade[];
-  registeredUsers: RegistrationData[];
+  registeredClimber: RegistrationData[];
   handleRegistration: (data: RegistrationData) => void;
   handleGradeChange: (index: number, newGradeId: number) => void;
-  handleAddUser: () => void;
+  handleAddClimber: () => void;
 }
 
 export function RegistrationPage({
   grades,
-  registeredUsers,
+  registeredClimber: registeredClimber,
   handleRegistration,
   handleGradeChange,
-  handleAddUser,
+  handleAddClimber: handleAddClimber,
 }: RegistrationPageProps) {
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
 
   return (
     <>
-      {registeredUsers.length === 0 || showRegistrationForm ? (
+      {registeredClimber.length === 0 || showRegistrationForm ? (
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-center mb-6">
             Register Now
@@ -38,43 +38,51 @@ export function RegistrationPage({
             />
           </div>
         </div>
-      ) : registeredUsers.length === 1 ? (
+      ) : registeredClimber.length === 1 ? (
         <GradeSection
-          grade={grades.find((g) => g.id === registeredUsers[0].selectedGrade)!}
-          name={registeredUsers[0].name}
+          grade={grades.find((g) => g.id === registeredClimber[0].selectedGrade)!}
+          name={registeredClimber[0].name}
           grades={grades}
           onGradeChange={(newGradeId) => handleGradeChange(0, newGradeId)}
-          onAddUser={() => {
-            setShowRegistrationForm(true); // Show the form for the second user
+          onAddClimber={() => {
+            setShowRegistrationForm(true); // Show the form for the second climber
+          }}
+          registeredClimber={{
+            id: registeredClimber[0].id,
+            name: registeredClimber[0].name,
+            email: registeredClimber[0].email,
+            date: registeredClimber[0].date,
+            selectedGrade: registeredClimber[0].selectedGrade,
           }}
         />
       ) : (
-        <Tabs defaultValue="user1">
+        <Tabs defaultValue="climber1">
           <TabsList className="flex justify-center mb-6">
-            {registeredUsers.map((user, index) => (
-              <TabsTrigger key={index} value={`user${index + 1}`}>
-                {user.name}
+            {registeredClimber.map((climber, index) => (
+              <TabsTrigger key={index} value={`climber${index + 1}`}>
+                {climber.name}
               </TabsTrigger>
             ))}
-          </TabsList>
-          {registeredUsers.map((user, index) => {
+        </TabsList>
+        {registeredClimber.map((climber, index) => {
             const selectedGrade = grades.find(
-              (g) => g.id === user.selectedGrade
+                (g) => g.id === climber.selectedGrade
             );
             return (
-              <TabsContent key={index} value={`user${index + 1}`}>
+                <TabsContent key={index} value={`climber${index + 1}`}>
                 {selectedGrade && (
-                  <GradeSection
+                    <GradeSection
                     grade={selectedGrade}
-                    name={user.name}
+                    name={climber.name}
                     grades={grades}
                     onGradeChange={(newGradeId) =>
-                      handleGradeChange(index, newGradeId)
+                        handleGradeChange(index, newGradeId)
                     }
-                    onAddUser={handleAddUser}
-                  />
+                    onAddClimber={handleAddClimber}
+                    registeredClimber={climber}
+                />
                 )}
-              </TabsContent>
+            </TabsContent>
             );
           })}
         </Tabs>
