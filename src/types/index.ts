@@ -3,6 +3,9 @@ export type Problem = {
   id: number;
   name: string;
   description?: string;
+  attempts: number;
+  bonusAttempt: number | null;
+  topAttempt: number | null;
 };
 
 export type Grade = {
@@ -15,4 +18,5 @@ export type Grade = {
 export type RegistrationData = {
   name: string;
   email: string;
+  selectedGrade: number;
 };

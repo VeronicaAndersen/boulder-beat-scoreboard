@@ -4,20 +4,24 @@ import { Card } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import type { RegistrationData } from "@/types";
 
-export function RegistrationForm() {
+interface RegistrationFormProps {
+  grades: { id: number; name: string }[];
+}
+
+export function RegistrationForm({ grades }: RegistrationFormProps) {
   const [formData, setFormData] = useState<RegistrationData>({
     name: "",
     email: "",
+    selectedGrade: 0,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, just log the data
     console.log("Registration submitted:", formData);
-    // Clear form
-    setFormData({ name: "", email: "" });
+    setFormData({ name: "", email: "", selectedGrade: 0 });
   };
 
   return (
@@ -35,6 +39,7 @@ export function RegistrationForm() {
             className="w-full"
           />
         </div>
+        
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -47,6 +52,28 @@ export function RegistrationForm() {
             className="w-full"
           />
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="grade">Select Grade</Label>
+          <Select
+            value={formData.selectedGrade.toString()}
+            onValueChange={(value) =>
+              setFormData({ ...formData, selectedGrade: parseInt(value) })
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a grade" />
+            </SelectTrigger>
+            <SelectContent>
+              {grades.map((grade) => (
+                <SelectItem key={grade.id} value={grade.id.toString()}>
+                  {grade.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Button type="submit" className="w-full bg-[#6E59A5] hover:bg-[#5D4A94]">
           Register
         </Button>

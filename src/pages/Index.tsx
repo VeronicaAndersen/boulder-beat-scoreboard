@@ -1,3 +1,4 @@
+
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { GradeSection } from "@/components/GradeSection";
 import type { Grade } from "@/types";
@@ -79,7 +80,7 @@ const Index = () => {
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-center mb-6">Register Now</h2>
           <div className="flex justify-center">
-            <RegistrationForm />
+            <RegistrationForm grades={grades.map(({ id, name }) => ({ id, name }))} />
           </div>
         </div>
 
