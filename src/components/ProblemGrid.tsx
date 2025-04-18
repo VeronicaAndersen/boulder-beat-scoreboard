@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
@@ -56,6 +55,23 @@ export function ProblemGrid({ problems: initialProblems }: ProblemGridProps) {
     setEditingProblem(null);
   };
 
+  const getProblemDisplayName = (problem: Problem) => {
+    const nameParts = problem.name.split(/(\d+)/);
+    const letter = nameParts[0];
+    const number = nameParts[1];
+
+    let displayName = problem.name;
+    if (problem.bonusAttempt && problem.topAttempt) {
+      displayName = `${letter}${number}T${problem.topAttempt}B${problem.bonusAttempt}`;
+    } else if (problem.bonusAttempt) {
+      displayName = `${letter}${number}B${problem.bonusAttempt}`;
+    } else if (problem.topAttempt) {
+      displayName = `${letter}${number}T${problem.topAttempt}`;
+    }
+
+    return displayName;
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {problems.map((problem) => (
@@ -64,7 +80,7 @@ export function ProblemGrid({ problems: initialProblems }: ProblemGridProps) {
           className="p-4 space-y-4"
         >
           <div className="flex justify-between items-center">
-            <h3 className="font-semibold">{problem.name}</h3>
+            <h3 className="font-semibold">{getProblemDisplayName(problem)}</h3>
             <div className="flex items-center gap-2">
               {problem.bonusAttempt && (
                 <TooltipProvider>
