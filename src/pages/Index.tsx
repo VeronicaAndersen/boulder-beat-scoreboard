@@ -1,40 +1,11 @@
-
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { GradeSection } from "@/components/GradeSection";
 import type { Grade } from "@/types";
 
-// Example data - in a real app, this would come from a backend
 const grades: Grade[] = [
   {
     id: 1,
-    name: "Beginner",
-    color: "#4ADE80",
-    problems: Array.from({ length: 8 }, (_, i) => ({
-      id: i + 1,
-      name: `Problem ${i + 1}`,
-    })),
-  },
-  {
-    id: 2,
-    name: "Easy",
-    color: "#2DD4BF",
-    problems: Array.from({ length: 8 }, (_, i) => ({
-      id: i + 1,
-      name: `Problem ${i + 1}`,
-    })),
-  },
-  {
-    id: 3,
-    name: "Moderate",
-    color: "#60A5FA",
-    problems: Array.from({ length: 8 }, (_, i) => ({
-      id: i + 1,
-      name: `Problem ${i + 1}`,
-    })),
-  },
-  {
-    id: 4,
-    name: "Intermediate",
+    name: "Lila",
     color: "#A78BFA",
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
@@ -42,8 +13,8 @@ const grades: Grade[] = [
     })),
   },
   {
-    id: 5,
-    name: "Advanced",
+    id: 2,
+    name: "Rosa",
     color: "#F472B6",
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
@@ -51,9 +22,36 @@ const grades: Grade[] = [
     })),
   },
   {
+    id: 3,
+    name: "Orange",
+    color: "#F97316",
+    problems: Array.from({ length: 8 }, (_, i) => ({
+      id: i + 1,
+      name: `Problem ${i + 1}`,
+    })),
+  },
+  {
+    id: 4,
+    name: "Gul",
+    color: "#FEF7CD",
+    problems: Array.from({ length: 8 }, (_, i) => ({
+      id: i + 1,
+      name: `Problem ${i + 1}`,
+    })),
+  },
+  {
+    id: 5,
+    name: "Grön",
+    color: "#4ADE80",
+    problems: Array.from({ length: 8 }, (_, i) => ({
+      id: i + 1,
+      name: `Problem ${i + 1}`,
+    })),
+  },
+  {
     id: 6,
-    name: "Expert",
-    color: "#FB7185",
+    name: "Vit",
+    color: "#FFFFFF",
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
       name: `Problem ${i + 1}`,
@@ -61,8 +59,8 @@ const grades: Grade[] = [
   },
   {
     id: 7,
-    name: "Elite",
-    color: "#F43F5E",
+    name: "Svart",
+    color: "#1A1F2C",
     problems: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
       name: `Problem ${i + 1}`,
