@@ -35,7 +35,7 @@ export function ProblemGrid({ problems: initialProblems, registeredClimber: regi
   }, [initialProblems, registeredClimber.id]);
 
   // Update problem attempts and save to appData in localStorage
-  const updateProblem = (id: number, updates: Partial<Problem>) => {
+  const updateProblem = async (id: number, updates: Partial<Problem>) => {
     setProblems((currentProblems) => {
       const updatedProblems = currentProblems.map((problem) =>
         problem.id === id ? { ...problem, ...updates } : problem
@@ -50,8 +50,55 @@ export function ProblemGrid({ problems: initialProblems, registeredClimber: regi
       };
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsedData));
 
+
       return updatedProblems;
     });
+  };
+
+
+  // Send updated problemAttempts to the API
+  const sendUpdatesToAPI = async () => {
+    try {
+      const token = import.meta.env.VITE_REACT_APP_API_TOKEN;
+
+      // Construct the payload to match the API's expected structure
+      const payload = {
+        attempts: problems.map((problem) => ({
+          id: problem.id,
+          name: problem.name,
+          attempts: problem.attempts,
+          bonusAttempt: problem.bonusAttempt || null, // Use null if not set
+          topAttempt: problem.topAttempt || null, // Use null if not set
+        })),
+      };
+
+      console.log("Payload to send:", JSON.stringify(payload));
+
+      const response = await fetch(
+        `https://web-production-9e43d.up.railway.app/Climbers/${registeredClimber.id}/attempts`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json(); // Parse the error response
+        console.error("API Error:", errorData);
+        alert(`Failed to update problem attempts: ${errorData.error || "Unknown error"}`);
+        return;
+      }
+
+      console.log("Problem attempts updated successfully on the server.");
+      alert("Problem attempts updated successfully!");
+    } catch (error) {
+      console.error("Error updating problem attempts on the server:", error);
+      alert("Failed to update problem attempts. Please check your connection and try again.");
+    }
   };
 
   const getProblemScore = (problem: Problem) => {
@@ -82,7 +129,7 @@ export function ProblemGrid({ problems: initialProblems, registeredClimber: regi
                       <Medal className="w-5 h-5 text-yellow-500" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Bonus on attempt {problem.bonusAttempt}</p>
+                      <p>Bonus på försök {problem.bonusAttempt}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -94,7 +141,7 @@ export function ProblemGrid({ problems: initialProblems, registeredClimber: regi
                       <Star className="w-5 h-5 text-green-500" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Top on attempt {problem.topAttempt}</p>
+                      <p>Topp på försök {problem.topAttempt}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -105,7 +152,7 @@ export function ProblemGrid({ problems: initialProblems, registeredClimber: regi
           {/* Editable fields */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Label htmlFor={`attempts-${problem.id}`}>Attempts:</Label>
+              <Label htmlFor={`attempts-${problem.id}`}>Försök:</Label>
               <div className="flex items-center gap-1">
                 <Button
                   variant="outline"
@@ -133,7 +180,7 @@ export function ProblemGrid({ problems: initialProblems, registeredClimber: regi
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Label htmlFor={`bonus-${problem.id}`}>Bonus attempt:</Label>
+              <Label htmlFor={`bonus-${problem.id}`}>Bonus försök:</Label>
               <Input
                 id={`bonus-${problem.id}`}
                 type="number"
@@ -150,7 +197,7 @@ export function ProblemGrid({ problems: initialProblems, registeredClimber: regi
               />
             </div>
             <div className="flex items-center gap-2">
-              <Label htmlFor={`top-${problem.id}`}>Top attempt:</Label>
+              <Label htmlFor={`top-${problem.id}`}>Topp försök:</Label>
               <Input
                 id={`top-${problem.id}`}
                 type="number"
@@ -169,6 +216,16 @@ export function ProblemGrid({ problems: initialProblems, registeredClimber: regi
           </div>
         </Card>
       ))}
+      
+      {/* Submit button */}
+      <div className="col-span-1 md:col-span-2 lg:col-span-4 flex justify-end">
+        <Button
+          onClick={sendUpdatesToAPI}
+          className="bg-[#505654] hover:bg-[#868f79]"
+        >
+          Spara försök för {registeredClimber.name}
+        </Button>
+      </div>
     </div>
   );
 }

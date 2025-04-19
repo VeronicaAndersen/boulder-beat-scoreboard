@@ -26,7 +26,7 @@ export function RegistrationPage({
       {registeredClimber.length === 0 || showRegistrationForm ? (
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-center mb-6">
-            Register Now
+            Registrera dig
           </h2>
           <div className="flex justify-center">
             <RegistrationForm

@@ -21,46 +21,46 @@ export function GradeSection({
   onAddClimber,
   registeredClimber,
 }: GradeSectionProps) {
-  const handleSubmitAllClimbers = async () => {
-    try {
-      // Retrieve all data from localStorage
-      const appData = localStorage.getItem("appData");
-      if (!appData) {
-        alert("No data found in localStorage to submit.");
-        return;
-      }
+  // const handleSubmitAllClimbers = async () => {
+  //   try {
+  //     // Retrieve all data from localStorage
+  //     const appData = localStorage.getItem("appData");
+  //     if (!appData) {
+  //       alert("No data found in localStorage to submit.");
+  //       return;
+  //     }
 
-      // Parse the data
-      const parsedData = JSON.parse(appData);
-      const token = import.meta.env.VITE_REACT_APP_API_TOKEN;
-      // Send the data to the API endpoint
-      const response = await fetch("https://web-production-9e43d.up.railway.app/Climbers/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(parsedData),
-      });
+  //     // Parse the data
+  //     const parsedData = JSON.parse(appData);
+  //     const token = import.meta.env.VITE_REACT_APP_API_TOKEN;
+  //     // Send the data to the API endpoint
+  //     const response = await fetch("https://web-production-9e43d.up.railway.app/Climbers/", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify(parsedData),
+  //     });
 
-      if (response.ok) {
-        alert("All climbers submitted successfully!");
-        console.log("Response:", await response.json());
-      } else {
-        alert("Failed to submit climbers. Please try again.");
-        console.error("Error:", await response.text());
-      }
-    } catch (error) {
-      console.error("An error occurred while submitting climbers:", error);
-      alert("An error occurred. Please check the console for details.");
-    }
-  };
+  //     if (response.ok) {
+  //       alert("All climbers submitted successfully!");
+  //       console.log("Response:", await response.json());
+  //     } else {
+  //       alert("Failed to submit climbers. Please try again.");
+  //       console.error("Error:", await response.text());
+  //     }
+  //   } catch (error) {
+  //     console.error("An error occurred while submitting climbers:", error);
+  //     alert("An error occurred. Please check the console for details.");
+  //   }
+  // };
 
   return (
     <>
       <div className="mt-6 flex justify-end">
         <Button onClick={onAddClimber} className="bg-[#505654] hover:bg-[#868f79]">
-          Add Another Climber
+          Lägg till ny klättrare
         </Button>
       </div>
       <Card className="p-6 bg-white/95 backdrop-blur">
@@ -93,11 +93,11 @@ export function GradeSection({
         </div>
         <ProblemGrid problems={grade.problems} registeredClimber={registeredClimber} />
       </Card>
-      <div className="mt-6 flex justify-end">
+      {/* <div className="mt-6 flex justify-end">
         <Button onClick={handleSubmitAllClimbers} className="bg-[#505654] hover:bg-[#868f79]">
           Submit All Climbers
         </Button>
-      </div>
+      </div> */}
     </>
   );
 }
