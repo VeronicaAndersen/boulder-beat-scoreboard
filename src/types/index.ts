@@ -9,16 +9,24 @@ export type Problem = {
 };
 
 export type Grade = {
-  id: number;
   name: string;
-  color: string;
-  problems: Problem[];
 };
 
 export type RegistrationData = {
+  name: string;
+  password: string;
+  roles: "Climber" | "Admin" | "";
+  grade: string;
+};
+
+export type LoginData = {
+  name: string;
+  password: string;
+};
+
+export type Climber = {
   id: string;
   name: string;
-  email: string;
-  date: string;
-  selectedGrade: number;
+  selected_grade: string;
+  problemAttempts: Problem[];
 };

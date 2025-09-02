@@ -17,12 +17,12 @@ interface ProblemGridProps {
   registeredClimber: { id: string; name: string; email: string };
 }
 
-const LOCAL_STORAGE_KEY = "appData";
+const LOCAL_STORAGE_KEY = "climbers";
 
 export function ProblemGrid({ problems: initialProblems, registeredClimber: registeredClimber }: ProblemGridProps) {
   const [problems, setProblems] = useState<Problem[]>([]);
 
-  // Load problem attempts from appData in localStorage when the component mounts
+  // Load problem attempts from climbers in localStorage when the component mounts
   useEffect(() => {
     const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (storedData) {
@@ -60,6 +60,7 @@ export function ProblemGrid({ problems: initialProblems, registeredClimber: regi
   const sendUpdatesToAPI = async () => {
     try {
       const token = import.meta.env.VITE_REACT_APP_API_TOKEN;
+      const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
 
       // Construct the payload to match the API's expected structure
       const payload = {
@@ -74,8 +75,7 @@ export function ProblemGrid({ problems: initialProblems, registeredClimber: regi
 
       console.log("Payload to send:", JSON.stringify(payload));
 
-      const response = await fetch(
-        `https://web-production-9e43d.up.railway.app/Climbers/${registeredClimber.id}/attempts`,
+      const response = await fetch(apiUrl + `/Climbers/${registeredClimber.id}/attempts`,
         {
           method: "PUT",
           headers: {
