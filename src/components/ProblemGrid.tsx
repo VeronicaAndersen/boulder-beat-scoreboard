@@ -14,7 +14,7 @@ import type { Problem } from "@/types";
 
 interface ProblemGridProps {
   problems: Problem[];
-  registeredClimber: { id: string; name: string; email: string };
+  registeredClimber: { id: string; name: string; selected_grade: string;};
 }
 
 const LOCAL_STORAGE_KEY = "climbers";

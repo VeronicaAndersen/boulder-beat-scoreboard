@@ -7,7 +7,7 @@ export default function ClimberTab() {
    <ProblemGrid problems={[]} registeredClimber={{
       id: "",
       name: "",
-      email: ""
+      selected_grade: ""
     }} />
   )
 }

@@ -47,7 +47,7 @@ export async function registerClimber(payload: RegistrationData): Promise<void> 
   }
 }
 
-export default async function getClimberById(climberId: string | null): Promise<Climber | null> {
+export async function getClimberById(climberId: string){
   if (!climberId) return null;
 
   try {
@@ -64,7 +64,7 @@ export default async function getClimberById(climberId: string | null): Promise<
     }
 
     const data = await response.json();
-    return data.climber; // or data.climber if your API wraps it like that
+    return data.climber;
   } catch (error) {
     console.error("Error fetching climber:", error);
     return null;
