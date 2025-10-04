@@ -92,3 +92,26 @@ export async function getGrades(): Promise<string[]> {
     return [];
   }
 }
+
+export async function getCompetitions()
+{
+  try {
+    const response = await fetch(`${apiUrl}/Competitions/visible`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch competitions. Please try again.");
+    }
+
+    const data = await response.json();
+    return data.competitions || [];
+  } catch (error) {
+    console.error("Error fetching competitions:", error);
+    return [];
+  }
+}

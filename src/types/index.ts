@@ -30,3 +30,11 @@ export type Climber = {
   selected_grade: string;
   problemAttempts: Problem[];
 };
+
+export type Competition = {
+  id: number;
+  compname: string;
+  compdate: string;
+  comppart: number;
+  visible: boolean;
+};

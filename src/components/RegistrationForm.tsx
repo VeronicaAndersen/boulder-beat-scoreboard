@@ -6,7 +6,7 @@ import { Label } from "./ui/label";
 import type { RegistrationData } from "@/types";
 import { getGrades, registerClimber } from "@/hooks/api";
 import { Link, useNavigate } from "react-router-dom";
-// ✅ use styled shadcn components, not raw radix
+
 import {
   Select,
   SelectContent,
@@ -63,6 +63,7 @@ export function RegistrationForm() {
   };
 
   return (
+  <div className="min-h-screen flex items-center justify-center">
     <Card className="w-full h-fit max-w-md p-6 bg-white/95 backdrop-blur shadow-xl">
       <form onSubmit={handleRegister} className="space-y-6">
         <div className="space-y-2">
@@ -126,6 +127,7 @@ export function RegistrationForm() {
         >
           Register
         </Button>
+
         <Link
           to="/"
           className="text-sm text-center text-[#505654] hover:underline justify-center flex"
@@ -134,5 +136,7 @@ export function RegistrationForm() {
         </Link>
       </form>
     </Card>
+  </div>
+
   );
 }
