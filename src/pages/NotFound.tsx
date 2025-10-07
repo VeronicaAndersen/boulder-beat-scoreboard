@@ -5,10 +5,7 @@ const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.error(
-      "404 Error: Climber attempted to access non-existent route:",
-      location.pathname
-    );
+    console.error("404 Error: Climber attempted to access non-existent route:", location.pathname);
   }, [location.pathname]);
 
   return (

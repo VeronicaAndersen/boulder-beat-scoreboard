@@ -1,4 +1,4 @@
-import {create} from "zustand";
+import { create } from "zustand";
 
 interface AuthState {
   token: string | null;
@@ -6,7 +6,6 @@ interface AuthState {
   setToken: (token: string | null) => void;
   setClimberId: (climberId: string | null) => void;
 }
-
 
 export const useAuthStore = create<AuthState>((set) => ({
   token: null,
