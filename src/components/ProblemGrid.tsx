@@ -37,7 +37,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
-  // 🧠 Load attempts
+  // Load attempts
   useEffect(() => {
     if (!climberId || !competitionId) return;
     let alive = true;
