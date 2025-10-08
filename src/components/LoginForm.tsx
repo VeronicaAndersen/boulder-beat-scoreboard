@@ -13,10 +13,10 @@ export function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { token, id } = await loginClimber(formData);
-      useAuthStore.getState().setToken(token);
-      useAuthStore.getState().setClimberId(id);
-      localStorage.setItem("climber", JSON.stringify({ climberId: id }));
+      const { access_token, climber_id } = await loginClimber(formData);
+      useAuthStore.getState().setToken(access_token);
+      useAuthStore.getState().setClimberId(climber_id);
+      localStorage.setItem("climber", JSON.stringify({ climberId: climber_id }));
       navigate("/profile");
     } catch (error) {
       console.error("Error logging in climber:", error);

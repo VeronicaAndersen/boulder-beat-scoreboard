@@ -1,10 +1,11 @@
 export type Problem = {
   id: number;
   name: string;
-  description?: string;
-  attempts: number;
-  bonusAttempt: number | null;
-  topAttempt: number | null;
+  number: number;
+  grade: string;
+  sector?: string | null;
+  visible?: boolean;
+  competitionId?: number;
 };
 
 export type Grade = {
@@ -32,8 +33,8 @@ export type Climber = {
 
 export type Competition = {
   id: number;
-  compname: string;
-  compdate: string;
-  comppart: number;
+  name: string;
+  date: string;
+  participants: number;
   visible: boolean;
 };

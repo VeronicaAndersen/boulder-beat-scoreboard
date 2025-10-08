@@ -1,6 +1,7 @@
+import ProblemGrid from "@/components/ProblemGrid";
 import { getClimberById, getCompetitions } from "@/hooks/api";
 import { useAuthStore } from "@/store/auth";
-import { Climber, Competition, Problem } from "@/types";
+import { Climber, Competition } from "@/types";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -8,39 +9,40 @@ export default function Profile() {
   const { climberId, setClimberId, setToken } = useAuthStore();
   const navigate = useNavigate();
 
-  const [climberData, setClimberData] = useState<Climber>({
+  const [, setClimberData] = useState<Climber>({
     id: "",
     name: "",
     selected_grade: "",
     problemAttempts: [],
   });
 
-  const [problems, setProblems] = useState<Problem[]>([]);
-  const [comp, setComp] = useState<Competition>({
+  const [competition_id, setComp] = useState<Competition>({
     id: null,
-    compname: "",
-    compdate: "",
-    comppart: null,
+    name: "",
+    date: "",
+    participants: null,
     visible: false,
   });
 
   useEffect(() => {
     const storedClimber = localStorage.getItem("climber");
-
-    if (storedClimber) {
-      try {
-        const parsed = JSON.parse(storedClimber);
-        if (parsed.climberId) {
-          setClimberId(parsed.climberId);
-          return;
-        }
-      } catch (err) {
-        console.error("Failed to parse stored climber:", err);
-      }
+    if (!storedClimber) {
+      navigate("/");
+      return;
     }
 
-    // No climber found, redirect to login
-    navigate("/");
+    try {
+      const parsed = JSON.parse(storedClimber);
+      if (parsed.climberId) {
+        setClimberId(parsed.climberId);
+      } else {
+        console.error("Invalid climber data in localStorage:", parsed);
+        navigate("/");
+      }
+    } catch {
+      console.error("Failed to parse climber data from localStorage");
+      navigate("/");
+    }
   }, [navigate, setClimberId]);
 
   useEffect(() => {
@@ -51,6 +53,7 @@ export default function Profile() {
         if (climber) {
           setClimberData(climber);
         } else {
+          console.error("No climber data found for id:", climberId);
           // invalid climber id, redirect to login
           navigate("/");
         }
@@ -73,18 +76,9 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#c6d2b8] p-4">
-      <h1 className="mt-4 mb-2 text-lg font-semibold">{comp.compname + " del " + comp.comppart}</h1>
+      <h1 className="mt-4 mb-2 text-4xl font-semibold">{competition_id.name}</h1>
 
-      <div className="bg-white/95 backdrop-blur shadow-xl rounded-lg p-6 w-full max-w-md mt-4">
-        <p>
-          <strong>Namn:</strong> {climberData.name}
-        </p>
-        <p>
-          <strong>Vald grad:</strong> {climberData.selected_grade}
-        </p>
-      </div>
-
-      {/* <ProblemGrid problems={problems} registeredClimber={climberData} /> */}
+      <ProblemGrid competitionId={competition_id.id} />
 
       <button
         className="absolute bg-[#505654] hover:bg-[#868f79] rounded px-4 py-2 mt-4 text-white top-4 right-4"
