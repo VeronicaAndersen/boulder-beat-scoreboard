@@ -37,7 +37,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
-  // Load attempts
+  // 🧠 Load attempts
   useEffect(() => {
     if (!climberId || !competitionId) return;
     let alive = true;
@@ -66,13 +66,11 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
     };
 
     fetchAttempts();
-
     return () => {
       alive = false;
     };
   }, [climberId, competitionId]);
 
-  // Update helpers
   const updateField = (problemId: number, field: keyof ProblemAttempt, value: number) => {
     setAttempts((prev) =>
       prev.map((a) => (a.problem_id === problemId ? { ...a, [field]: Math.max(0, value) } : a))
@@ -93,7 +91,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
       )
     );
 
-  // Save changes
+  // Save only changed fields
   const onSave = async (): Promise<void> => {
     if (!climberId) {
       setError("Ingen klättrare är inloggad.");
@@ -117,7 +115,16 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
       setSaveMessage(null);
 
       for (const a of changed) {
-        await submitProblemAttempt(climberId, a.problem_id, a.attempts, a.top, a.bonus);
+        const orig = initialAttempts.find((o) => o.problem_id === a.problem_id);
+        if (!orig) continue;
+
+        // Skicka endast fält som ändrats
+        const updatedFields: Record<string, number> = {};
+        if (a.attempts !== orig.attempts) updatedFields.attempts = a.attempts;
+        if (a.top !== orig.top) updatedFields.top = a.top;
+        if (a.bonus !== orig.bonus) updatedFields.bonus = a.bonus;
+
+        await submitProblemAttempt(climberId, a.problem_id, updatedFields);
       }
 
       setInitialAttempts(JSON.parse(JSON.stringify(attempts)));
@@ -171,9 +178,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                 </div>
 
                 <div className="flex justify-between items-center mb-2">
-                  <p className="text-sm italic font-semibold text-[#505654]">
-                    {summary}
-                  </p>
+                  <p className="text-sm italic font-semibold text-[#505654]">{summary}</p>
                   <div className="flex gap-1">
                     {a.bonus > 0 && <Medal className="w-5 h-5 text-yellow-500" />}
                     {a.top > 0 && <Star className="w-5 h-5 text-green-500" />}
@@ -222,10 +227,11 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                     </div>
                   </div>
                 ))}
+
                 <button
                   onClick={onSave}
                   disabled={saving}
-                  className={`px-4 py-2 rounded-md font-medium text-white shadow transition ${
+                  className={`mt-3 px-4 py-2 rounded-md font-medium text-white shadow transition ${
                     saving ? "bg-gray-500 cursor-not-allowed" : "bg-[#505654] hover:bg-[#7b8579]"
                   }`}
                 >

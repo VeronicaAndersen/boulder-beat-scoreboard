@@ -138,39 +138,23 @@ export async function getProblemsByClimberId(climberId: string) {
 export async function submitProblemAttempt(
   climberId: string,
   problemId: number,
-  attempts: number,
-  topAttempts: number,
-  bonusAttempts: number
+  data: Partial<{ attempts: number; top: number; bonus: number }>
 ) {
-  const payload = {
-    climber_id: climberId,
-    problem_id: problemId,
-    attempts: attempts,
-    top_attempts: topAttempts,
-    bonus_attempts: bonusAttempts,
-  };
-  console.log("Submitting problem attempt with payload:", payload);
-  try {
-    const response = await fetch(`${apiUrl}/attempts/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiToken}`,
-      },
-      body: JSON.stringify(payload),
-    });
+  const res = await fetch(`${apiUrl}/attempts/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiToken}`,
+    },
+    body: JSON.stringify({
+      climber_id: climberId,
+      problem_id: problemId,
+      ...data,
+    }),
+  });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || "Failed to submit problemattempt");
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error submitting problem attempt:", error);
-    throw error;
-  }
+  if (!res.ok) throw new Error("Failed to save attempt");
+  return res.json();
 }
 
 export async function getProblemAttempts(climberId: string, competitionId: number) {
