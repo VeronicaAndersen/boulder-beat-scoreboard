@@ -1,73 +1,131 @@
-# Welcome to your Lovable project
+# Greppmästerskapen Scoreboard
 
-## Project info
+## Overview
 
-**URL**: https://lovable.dev/projects/985e2fe1-f42b-484c-a98c-0ec65cf0afa1
+Greppmästerskapen Scoreboard is a web application for managing and tracking bouldering competitions. It allows climbers to register, join competitions, select their grade, and log their problem attempts. Organizers can create competitions and manage problems for each grade. The application provides a user-friendly interface for climbers to view and update their attempts, and for admins to oversee competition progress.
 
-## How can I edit this code?
+The project consists of two main parts:
 
-There are several ways of editing your application.
+- **Frontend:** A React + TypeScript app using Vite, Tailwind CSS, shadcn-ui, and Radix UI for the user interface.
+- **Backend:** A FastAPI (Python) REST API for managing climbers, competitions, problems, and attempts, with a MySQL database.
 
-**Use Lovable**
+## Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/985e2fe1-f42b-484c-a98c-0ec65cf0afa1) and start prompting.
+- **Climber Registration & Login:** Climbers can register with a name, password, and select their climbing grade.
+- **Competition Management:** Organizers can create new competitions and define problems for each grade.
+- **Join Competitions:** Climbers can join competitions and are assigned problems based on their grade.
+- **Problem Attempt Tracking:** Climbers can log the number of attempts, tops, and bonuses for each problem.
+- **Profile Dashboard:** Climbers can view and update their attempts for each competition.
+- **Responsive UI:** Modern, mobile-friendly design with dark mode support.
 
-Changes made via Lovable will be committed automatically to this repo.
+## Technologies Used
 
-**Use your preferred IDE**
+- **Frontend:**  
+  - [React](https://react.dev/)
+  - [TypeScript](https://www.typescriptlang.org/)
+  - [Vite](https://vitejs.dev/)
+  - [Tailwind CSS](https://tailwindcss.com/)
+  - [shadcn-ui](https://ui.shadcn.com/)
+  - [Radix UI](https://www.radix-ui.com/)
+  - [Zustand](https://zustand-demo.pmnd.rs/) (state management)
+  - [React Query](https://tanstack.com/query/latest) (data fetching)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Backend:**  
+  - [FastAPI](https://fastapi.tiangolo.com/)
+  - [SQLAlchemy](https://www.sqlalchemy.org/) (ORM)
+  - [Alembic](https://alembic.sqlalchemy.org/) (migrations)
+  - [MySQL](https://www.mysql.com/) (database)
+  - [Pydantic](https://docs.pydantic.dev/) (data validation)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Getting Started
 
-Follow these steps:
+### Prerequisites
+
+- Node.js & npm
+- Python 3.10+
+- MySQL database
+
+### Setup
+
+#### 1. Clone the repository
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
+cd ClimbingApp
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+#### 2. Install frontend dependencies
 
-# Step 3: Install the necessary dependencies.
-npm i
+```sh
+cd boulder-beat-scoreboard
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+#### 3. Configure environment variables
+
+- Copy `.env.example` to `.env` in both `boulder-beat-scoreboard/` and `ClimbAPI/` and fill in the required values (API URLs, tokens, database credentials).
+
+#### 4. Set up the backend
+
+```sh
+cd ../ClimbAPI
+pip install -r requirements.txt
+# Set up the database (see Alembic migrations or run `init_db.py`)
+```
+
+#### 5. Run the backend server
+
+```sh
+uvicorn main:app --reload
+```
+
+#### 6. Run the frontend development server
+
+```sh
+cd ../boulder-beat-scoreboard
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at [http://localhost:8080](http://localhost:8080).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Project Structure
 
-**Use GitHub Codespaces**
+```
+boulder-beat-scoreboard/
+  ├── src/
+  │   ├── components/         # React components (Login, Registration, ProblemGrid, etc.)
+  │   ├── hooks/              # API hooks for backend communication
+  │   ├── pages/              # Route pages (Login, Profile, Registration, NotFound)
+  │   ├── store/              # Zustand state management
+  │   ├── types/              # TypeScript types
+  │   └── index.css           # Tailwind and custom styles
+  ├── tailwind.config.ts      # Tailwind theme config
+  └── ...
+ClimbAPI/
+  ├── models/                 # SQLAlchemy models (Climber, Competition, Problem, etc.)
+  ├── routes/                 # FastAPI route handlers
+  ├── schemas/                # Pydantic schemas
+  ├── migrations/             # Alembic migrations
+  ├── main.py                 # FastAPI app entrypoint
+  └── ...
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Usage
 
-## What technologies are used for this project?
+1. **Register as a climber**  
+   Go to the registration page and create an account, selecting your preferred grade.
 
-This project is built with:
+2. **Login**  
+   Use your credentials to log in.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+3. **Create a competition**
+    If there isn't one available
 
-## How can I deploy this project?
+4. **Join a competition**  
+   After logging in, you can join available competitions and will be assigned problems for your grade.
 
-Simply open [Lovable](https://lovable.dev/projects/985e2fe1-f42b-484c-a98c-0ec65cf0afa1) and click on Share -> Publish.
+5. **Log attempts**  
+   On your profile page, update your attempts, tops, and bonuses for each problem.
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+6. **Save progress**  
+   Click "Spara ändringar" to save your progress to the backend.
