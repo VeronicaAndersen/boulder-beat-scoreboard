@@ -51,9 +51,10 @@ export function RegistrationForm() {
   const isSubmitDisabled = loadingGrades || !formData.name || !formData.password;
 
   return (
-    <div className="min-h-screen w-80 flex items-center justify-center">
+    <div className="w-80 flex items-center justify-center">
       <Card className="w-full h-fit max-w-md p-6 bg-white/95 backdrop-blur shadow-xl">
         <form onSubmit={handleRegister} className="space-y-6">
+          <h2 className="text-2xl font-semibold text-center mb-4">Registrera dig</h2>
           <div className="space-y-2">
             <Label.Root htmlFor="name">Namn</Label.Root>
             <TextField.Root

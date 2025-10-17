@@ -8,7 +8,7 @@ export default function Login() {
         <img
           src="/grepp.svg"
           alt="Grepp logo"
-          className="w-24 h-24 object-contain drop-shadow-md"
+          className="w-48 h-48 object-contain drop-shadow-md"
         />
 
         {/* Registration Form */}

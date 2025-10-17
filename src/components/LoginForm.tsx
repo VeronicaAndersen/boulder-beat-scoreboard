@@ -28,9 +28,10 @@ export function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen w-80 flex items-center justify-center">
+    <div className="w-80 flex items-center justify-center">
       <Card className="w-full h-fit max-w-md p-6 bg-white/95 backdrop-blur shadow-xl">
         <form onSubmit={handleLogin} className="space-y-6">
+          <h1 className="text-2xl font-semibold text-center mb-4">Logga in</h1>
           <div className="space-y-2">
             <Label>Namn</Label>
             <TextField.Root

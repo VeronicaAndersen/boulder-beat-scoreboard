@@ -82,7 +82,7 @@ export default function Profile() {
         <img
           src="/grepp.svg"
           alt="Grepp logo"
-          className="w-24 h-24 object-contain drop-shadow-md"
+          className="w-48 h-48 object-contain drop-shadow-md"
         />
 
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#c6d2b8] p-4">
@@ -104,7 +104,7 @@ export default function Profile() {
               ))}
             </ul>
           </div>
-
+          {/* TODO: selectedGrade should not be hard coded*/}
           <ProblemGrid competitionId={comp} selectedGrade="Gul" />
 
           <button

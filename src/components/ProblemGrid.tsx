@@ -134,7 +134,7 @@ export default function ProblemGrid({ competitionId, selectedGrade }: ProblemGri
   if (error) return <p className="text-red-600">{error}</p>;
 
   return (
-    <div className="w-full max-w-6xl mx-auto bg-gradient-to-br from-[#eef1eb] to-[#f9faf8] rounded-2xl shadow-lg p-8 border border-[#d4d7d0]">
+    <div className="w-full max-w-6xl mx-auto bg-gradient-to-br from-[#eef1eb] to-[#f9faf8] rounded-2xl shadow-lg p-4 border border-[#d4d7d0]">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-[#505654]">
           Dina försök – <span className="text-[#7b8579]">Tävling #{competitionId}</span>
@@ -147,7 +147,7 @@ export default function ProblemGrid({ competitionId, selectedGrade }: ProblemGri
         </p>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
         {problems.map((p) => {
           const color = gradeColors[p.grade] || "#D1D5DB";
           const summary = `B${p.bonus ?? 0}T${p.top ?? 0}`;
