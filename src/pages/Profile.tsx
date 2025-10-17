@@ -82,13 +82,10 @@ export default function Profile() {
         <img
           src="/grepp.svg"
           alt="Grepp logo"
-          className="w-48 h-48 object-contain drop-shadow-md"
+          className="w-48 h-28 drop-shadow-md"
         />
 
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#c6d2b8] p-4">
-          <h1 className="mt-4 mb-2 text-4xl font-semibold">
-            Välkommen {climber.name.toUpperCase()}
-          </h1>
           <div className="w-full max-w-md mb-6">
             <h2 className="text-2xl font-semibold mb-4">Tävlingar</h2>
             <ul className="space-y-2">
@@ -111,7 +108,7 @@ export default function Profile() {
             className="absolute bg-[#505654] hover:bg-[#868f79] rounded px-4 py-2 mt-4 text-white top-4 right-4"
             onClick={handleLogout}
           >
-            Logga ut
+            Logga ut {climber.name}
           </button>
         </div>
       </div>

@@ -161,7 +161,7 @@ export default function ProblemGrid({ competitionId, selectedGrade }: ProblemGri
           return (
             <div
               key={p.problem_id}
-              className={`relative p-5 rounded-xl shadow-sm hover:shadow-lg transition-all flex flex-col justify-between border
+              className={`relative p-4 rounded-xl shadow-sm hover:shadow-lg transition-all flex flex-col justify-between border
     ${isChanged ? "border-yellow-400 bg-yellow-50" : "border-[#ccd0c7] bg-white/90"}
   `}
             >
@@ -199,9 +199,9 @@ export default function ProblemGrid({ competitionId, selectedGrade }: ProblemGri
                 ].map(({ key, label }) => (
                   <div
                     key={key}
-                    className="flex justify-between items-center bg-gray-50 rounded-md px-3 py-2"
+                    className="flex justify-between items-center bg-gray-50 rounded-md"
                   >
-                    <label className="text-sm font-medium text-gray-700">{label}</label>
+                    <label className="text-sm text-gray-700">{label}</label>
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => dec(p.problem_id, key as keyof Problem)}
@@ -220,7 +220,7 @@ export default function ProblemGrid({ competitionId, selectedGrade }: ProblemGri
                             parseInt(e.target.value || "0", 10)
                           )
                         }
-                        className="w-14 text-center border border-gray-300 rounded-md text-sm p-1"
+                        className="w-12 text-center border border-gray-300 rounded-md text-sm p-1"
                       />
                       <button
                         onClick={() => inc(p.problem_id, key as keyof Problem)}
