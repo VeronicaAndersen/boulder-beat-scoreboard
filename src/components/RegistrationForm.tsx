@@ -3,7 +3,7 @@ import type { RegistrationData } from "@/types";
 import { getGrades, registerClimber } from "@/hooks/api";
 import { Link, useNavigate } from "react-router-dom";
 import * as Label from "@radix-ui/react-label";
-import { Card, Button, TextField, Select } from "@radix-ui/themes";
+import { Card, Button, TextField } from "@radix-ui/themes";
 
 export function RegistrationForm() {
   const navigate = useNavigate();
@@ -12,11 +12,9 @@ export function RegistrationForm() {
   const [formData, setFormData] = useState<RegistrationData>({
     name: "",
     password: "",
-    roles: "",
-    grade: "",
   });
 
-  const [grades, setGrades] = useState<string[]>([]);
+  const [, setGrades] = useState<string[]>([]);
   const [loadingGrades, setLoadingGrades] = useState(true);
 
   useEffect(() => {
@@ -35,17 +33,10 @@ export function RegistrationForm() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.grade) {
-      alert("Please select a grade.");
-      return;
-    }
-
     try {
       const payload: RegistrationData = {
         name: formData.name,
         password: formData.password,
-        roles: "Climber",
-        grade: formData.grade,
       };
 
       await registerClimber(payload);
@@ -57,7 +48,7 @@ export function RegistrationForm() {
     }
   };
 
-  const isSubmitDisabled = loadingGrades || !formData.name || !formData.password || !formData.grade;
+  const isSubmitDisabled = loadingGrades || !formData.name || !formData.password;
 
   return (
     <div className="min-h-screen w-80 flex items-center justify-center">
@@ -77,7 +68,7 @@ export function RegistrationForm() {
           </div>
 
           <div className="space-y-2">
-            <Label.Root htmlFor="password">Password</Label.Root>
+            <Label.Root htmlFor="password">Lösenord</Label.Root>
             <TextField.Root
               id="password"
               type="password"
@@ -89,44 +80,19 @@ export function RegistrationForm() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label.Root>Välj Grad</Label.Root>
-            <Select.Root
-              value={formData.grade}
-              onValueChange={(value) => setFormData({ ...formData, grade: value })}
-              disabled={loadingGrades}
-            >
-              <Select.Trigger
-                placeholder={loadingGrades ? "Loading grades..." : "Select a grade"}
-                className="w-full"
-              />
-              <Select.Content>
-                <Select.Group>
-                  <Select.Label>Grades</Select.Label>
-                  {/* IMPORTANT: no <Select.Item value=""> here */}
-                  {grades.map((grade) => (
-                    <Select.Item key={grade} value={grade}>
-                      {grade}
-                    </Select.Item>
-                  ))}
-                </Select.Group>
-              </Select.Content>
-            </Select.Root>
-          </div>
-
           <Button
             type="submit"
             className="w-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
             disabled={isSubmitDisabled}
           >
-            Register
+            Registrera dig
           </Button>
 
           <Link
             to="/"
             className="text-sm text-center text-[#505654] hover:underline justify-center flex"
           >
-            Back to Login
+            Till Logga in
           </Link>
         </form>
       </Card>

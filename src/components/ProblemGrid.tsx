@@ -13,25 +13,24 @@ const gradeColors: Record<string, string> = {
   Svart: "#000000",
 };
 
-type ProblemAttempt = {
-  id: number;
+type Problem = {
   problem_id: number;
-  name: string;
-  number: number;
+  problem_name: string;
   grade: string;
   attempts: number;
-  top: number;
   bonus: number;
+  top: number;
 };
 
 interface ProblemGridProps {
   competitionId: number;
+  selectedGrade: string;
 }
 
-export default function ProblemGrid({ competitionId }: ProblemGridProps) {
+export default function ProblemGrid({ competitionId, selectedGrade }: ProblemGridProps) {
   const climberId = useAuthStore((s) => s.climberId);
-  const [attempts, setAttempts] = useState<ProblemAttempt[]>([]);
-  const [initialAttempts, setInitialAttempts] = useState<ProblemAttempt[]>([]);
+  const [problems, setProblems] = useState<Problem[]>([]);
+  const [initialProblems, setInitialProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -39,25 +38,25 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
 
   // Load attempts
   useEffect(() => {
-    if (!climberId || !competitionId) return;
+    if (!climberId || !competitionId || !selectedGrade) return;
     let alive = true;
 
     const fetchAttempts = async (): Promise<void> => {
       try {
         setLoading(true);
-        const data: ProblemAttempt[] = await getProblemAttempts(climberId, competitionId);
+        const data = await getProblemAttempts(climberId, competitionId, selectedGrade);
         if (!alive) return;
 
-        const normalized = (data || []).map((a) => ({
-          ...a,
-          problem_id: a.problem_id ?? a.id,
+        const normalized = (data?.problems || []).map((p: Problem, index: number) => ({
+          ...p,
+          number: index + 1,
         }));
 
-        setAttempts(normalized);
-        setInitialAttempts(JSON.parse(JSON.stringify(normalized)));
+        setProblems(normalized);
+        setInitialProblems(JSON.parse(JSON.stringify(normalized)));
       } catch (err) {
         if (alive) {
-          const message = err instanceof Error ? err.message : "Kunde inte hämta försök.";
+          const message = err instanceof Error ? err.message : "Kunde inte hämta problemförsök.";
           setError(message);
         }
       } finally {
@@ -69,66 +68,60 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
     return () => {
       alive = false;
     };
-  }, [climberId, competitionId]);
+  }, [climberId, competitionId, selectedGrade]);
 
-  const updateField = (problemId: number, field: keyof ProblemAttempt, value: number) => {
-    setAttempts((prev) =>
-      prev.map((a) => (a.problem_id === problemId ? { ...a, [field]: Math.max(0, value) } : a))
+  const updateField = (problemId: number, field: keyof Problem, value: number) => {
+    setProblems((prev) =>
+      prev.map((p) => (p.problem_id === problemId ? { ...p, [field]: Math.max(0, value) } : p))
     );
   };
 
-  const inc = (problemId: number, field: keyof ProblemAttempt) =>
-    setAttempts((prev) =>
-      prev.map((a) =>
-        a.problem_id === problemId ? { ...a, [field]: (a[field] as number) + 1 } : a
+  const inc = (problemId: number, field: keyof Problem) =>
+    setProblems((prev) =>
+      prev.map((p) =>
+        p.problem_id === problemId ? { ...p, [field]: (p[field] as number) + 1 } : p
       )
     );
 
-  const dec = (problemId: number, field: keyof ProblemAttempt) =>
-    setAttempts((prev) =>
-      prev.map((a) =>
-        a.problem_id === problemId ? { ...a, [field]: Math.max(0, (a[field] as number) - 1) } : a
+  const dec = (problemId: number, field: keyof Problem) =>
+    setProblems((prev) =>
+      prev.map((p) =>
+        p.problem_id === problemId ? { ...p, [field]: Math.max(0, (p[field] as number) - 1) } : p
       )
     );
 
   // Save only changed fields
-  const onSave = async (): Promise<void> => {
+  // Save a single problem
+  const saveProblem = async (problemId: number): Promise<void> => {
     if (!climberId) {
       setError("Ingen klättrare är inloggad.");
       return;
     }
 
-    const changed = attempts.filter((a) => {
-      const orig = initialAttempts.find((o) => o.problem_id === a.problem_id);
-      if (!orig) return true;
-      return a.attempts !== orig.attempts || a.top !== orig.top || a.bonus !== orig.bonus;
-    });
-
-    if (changed.length === 0) {
-      setSaveMessage("Inga ändringar att spara.");
-      return;
-    }
+    const problem = problems.find((p) => p.problem_id === problemId);
+    if (!problem) return;
 
     try {
       setSaving(true);
       setError(null);
       setSaveMessage(null);
 
-      for (const a of changed) {
-        const orig = initialAttempts.find((o) => o.problem_id === a.problem_id);
-        if (!orig) continue;
+      const payload = {
+        attempts: problem.attempts,
+        bonus: problem.bonus,
+        top: problem.top,
+      };
 
-        // Skicka endast fält som ändrats
-        const updatedFields: Record<string, number> = {};
-        if (a.attempts !== orig.attempts) updatedFields.attempts = a.attempts;
-        if (a.top !== orig.top) updatedFields.top = a.top;
-        if (a.bonus !== orig.bonus) updatedFields.bonus = a.bonus;
+      await submitProblemAttempt(climberId, competitionId, problem.problem_id, payload);
 
-        await submitProblemAttempt(climberId, a.problem_id, updatedFields);
-      }
+      // Update initial state for that specific problem
+      setInitialProblems((prev) =>
+        prev.map((p) => (p.problem_id === problemId ? { ...problem } : p))
+      );
 
-      setInitialAttempts(JSON.parse(JSON.stringify(attempts)));
-      setSaveMessage("Försök uppdaterades!");
+      setSaveMessage(
+        `Försök sparat för ${problem.problem_name || "problem " + problem.problem_id}.`
+      );
     } catch (err) {
       const message = err instanceof Error ? err.message : "Kunde inte spara försök.";
       setError(message);
@@ -137,7 +130,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
     }
   };
 
-  if (loading) return <p className="text-gray-600">Hämtar försök...</p>;
+  if (loading) return <p className="text-gray-600">Välj en tävling ovan</p>;
   if (error) return <p className="text-red-600">{error}</p>;
 
   return (
@@ -155,33 +148,45 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {attempts.map((a) => {
-          const grade = a.grade ?? "Vit";
-          const color = gradeColors[grade] || "#D1D5DB";
-          const summary = `B${a.bonus ?? 0}T${a.top ?? 0}`;
+        {problems.map((p) => {
+          const color = gradeColors[p.grade] || "#D1D5DB";
+          const summary = `B${p.bonus ?? 0}T${p.top ?? 0}`;
+
+          const isChanged = (() => {
+            const orig = initialProblems.find((o) => o.problem_id === p.problem_id);
+            if (!orig) return false;
+            return p.attempts !== orig.attempts || p.bonus !== orig.bonus || p.top !== orig.top;
+          })();
 
           return (
             <div
-              key={a.problem_id}
-              className="p-5 border border-[#ccd0c7] rounded-xl bg-white/90 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between"
+              key={p.problem_id}
+              className={`relative p-5 rounded-xl shadow-sm hover:shadow-lg transition-all flex flex-col justify-between border
+    ${isChanged ? "border-yellow-400 bg-yellow-50" : "border-[#ccd0c7] bg-white/90"}
+  `}
             >
+              {isChanged && (
+                <span className="absolute top-2 right-2 text-xs font-medium text-yellow-700 bg-yellow-100 border border-yellow-300 rounded-md px-2 py-0.5">
+                  Ej sparad
+                </span>
+              )}
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-lg font-semibold text-[#505654] truncate">
-                    {a.name || `Problem #${a.number}`}
+                    {p.problem_name || `Problem #${p.problem_id}`}
                   </h3>
                   <span
                     className="w-5 h-5 rounded-full border border-gray-300 shadow-sm"
                     style={{ backgroundColor: color }}
-                    title={`Grad: ${grade}`}
+                    title={`Grad: ${p.grade}`}
                   ></span>
                 </div>
 
                 <div className="flex justify-between items-center mb-2">
                   <p className="text-sm italic font-semibold text-[#505654]">{summary}</p>
                   <div className="flex gap-1">
-                    {a.bonus > 0 && <Medal className="w-5 h-5 text-yellow-500" />}
-                    {a.top > 0 && <Star className="w-5 h-5 text-green-500" />}
+                    {p.bonus > 0 && <Medal className="w-5 h-5 text-yellow-500" />}
+                    {p.top > 0 && <Star className="w-5 h-5 text-green-500" />}
                   </div>
                 </div>
               </div>
@@ -199,7 +204,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                     <label className="text-sm font-medium text-gray-700">{label}</label>
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => dec(a.problem_id, key as keyof ProblemAttempt)}
+                        onClick={() => dec(p.problem_id, key as keyof Problem)}
                         disabled={saving}
                         className="w-7 h-7 rounded-full bg-[#505654] hover:bg-[#868f79] text-white text-lg font-semibold"
                       >
@@ -207,18 +212,18 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                       </button>
                       <input
                         type="number"
-                        value={a[key as keyof ProblemAttempt] as number}
+                        value={p[key as keyof Problem] as number}
                         onChange={(e) =>
                           updateField(
-                            a.problem_id,
-                            key as keyof ProblemAttempt,
+                            p.problem_id,
+                            key as keyof Problem,
                             parseInt(e.target.value || "0", 10)
                           )
                         }
                         className="w-14 text-center border border-gray-300 rounded-md text-sm p-1"
                       />
                       <button
-                        onClick={() => inc(a.problem_id, key as keyof ProblemAttempt)}
+                        onClick={() => inc(p.problem_id, key as keyof Problem)}
                         disabled={saving}
                         className="w-7 h-7 rounded-full bg-[#505654] hover:bg-[#868f79] text-white text-lg font-semibold"
                       >
@@ -229,7 +234,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                 ))}
 
                 <button
-                  onClick={onSave}
+                  onClick={() => saveProblem(p.problem_id)}
                   disabled={saving}
                   className={`mt-3 px-4 py-2 rounded-md font-medium text-white shadow transition ${
                     saving ? "bg-gray-500 cursor-not-allowed" : "bg-[#505654] hover:bg-[#7b8579]"
@@ -241,6 +246,46 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
             </div>
           );
         })}
+        {/* create a button to save all */}
+        <div className="col-span-full flex justify-center mt-8">
+          <button
+            onClick={async () => {
+              if (!climberId) {
+                setError("Ingen klättrare är inloggad.");
+                return;
+              }
+              try {
+                setSaving(true);
+                setError(null);
+                setSaveMessage(null);
+
+                // save every problem’s current state
+                for (const p of problems) {
+                  const payload = {
+                    attempts: p.attempts,
+                    bonus: p.bonus,
+                    top: p.top,
+                  };
+                  await submitProblemAttempt(climberId, competitionId, p.problem_id, payload);
+                }
+
+                setInitialProblems(JSON.parse(JSON.stringify(problems)));
+                setSaveMessage("Alla försök sparades!");
+              } catch (err) {
+                const message = err instanceof Error ? err.message : "Kunde inte spara försök.";
+                setError(message);
+              } finally {
+                setSaving(false);
+              }
+            }}
+            disabled={saving}
+            className={`px-6 py-3 rounded-md font-medium text-white shadow transition ${
+              saving ? "bg-gray-500 cursor-not-allowed" : "bg-[#505654] hover:bg-[#7b8579]"
+            }`}
+          >
+            {saving ? "Sparar alla..." : "Spara alla försök"}
+          </button>
+        </div>
       </div>
     </div>
   );

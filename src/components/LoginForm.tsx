@@ -16,7 +16,10 @@ export function LoginForm() {
       const { access_token, climber_id } = await loginClimber(formData);
       useAuthStore.getState().setToken(access_token);
       useAuthStore.getState().setClimberId(climber_id);
-      localStorage.setItem("climber", JSON.stringify({ climberId: climber_id }));
+      localStorage.setItem(
+        "climber",
+        JSON.stringify({ climberId: climber_id, climberName: formData.name })
+      );
       navigate("/profile");
     } catch (error) {
       console.error("Error logging in climber:", error);

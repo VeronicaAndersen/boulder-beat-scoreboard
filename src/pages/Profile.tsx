@@ -1,7 +1,7 @@
 import ProblemGrid from "@/components/ProblemGrid";
 import { getClimberById, getCompetitions } from "@/hooks/api";
 import { useAuthStore } from "@/store/auth";
-import { Climber, Competition } from "@/types";
+import { Climber, Competitions } from "@/types";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -9,20 +9,14 @@ export default function Profile() {
   const { climberId, setClimberId, setToken } = useAuthStore();
   const navigate = useNavigate();
 
-  const [, setClimberData] = useState<Climber>({
+  const [climber, setClimberData] = useState<Climber>({
     id: "",
     name: "",
-    selected_grade: "",
     problemAttempts: [],
   });
 
-  const [competition_id, setComp] = useState<Competition>({
-    id: null,
-    name: "",
-    date: "",
-    participants: null,
-    visible: false,
-  });
+  const [competitionsList, setCompetitions] = useState<Competitions>();
+  const [comp, setComp] = useState<number | null>(null);
 
   useEffect(() => {
     const storedClimber = localStorage.getItem("climber");
@@ -54,17 +48,20 @@ export default function Profile() {
           setClimberData(climber);
         } else {
           console.error("No climber data found for id:", climberId);
-          // invalid climber id, redirect to login
           navigate("/");
         }
       })
       .catch(() => navigate("/"));
 
-    getCompetitions().then((competitions) => {
-      if (competitions && competitions.length > 0) {
-        setComp(competitions[0]);
-      }
-    });
+    getCompetitions()
+      .then((competitions) => {
+        if (competitions) {
+          setCompetitions({ competitions: competitions });
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch competitions:", err);
+      });
   }, [climberId, navigate]);
 
   const handleLogout = () => {
@@ -74,18 +71,50 @@ export default function Profile() {
     navigate("/");
   };
 
+  const selectCompetition = (compId: number) => {
+    setComp(compId);
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#c6d2b8] p-4">
-      <h1 className="mt-4 mb-2 text-4xl font-semibold">{competition_id.name}</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#c6d2b8] px-4">
+      <div className="flex flex-col items-center">
+        {/* Logo */}
+        <img
+          src="/grepp.svg"
+          alt="Grepp logo"
+          className="w-24 h-24 object-contain drop-shadow-md"
+        />
 
-      <ProblemGrid competitionId={competition_id.id} />
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#c6d2b8] p-4">
+          <h1 className="mt-4 mb-2 text-4xl font-semibold">
+            Välkommen {climber.name.toUpperCase()}
+          </h1>
+          <div className="w-full max-w-md mb-6">
+            <h2 className="text-2xl font-semibold mb-4">Tävlingar</h2>
+            <ul className="space-y-2">
+              {competitionsList?.competitions.map((comp) => (
+                <li
+                  key={comp.id}
+                  className="p-4 bg-white/90 rounded-2xl shadow hover:bg-white cursor-pointer"
+                  onClick={() => selectCompetition(comp.id)}
+                >
+                  <h3 className="text-xl font-medium">{comp.name}</h3>
+                  <p className="text-sm text-gray-600">Datum: {comp.date}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-      <button
-        className="absolute bg-[#505654] hover:bg-[#868f79] rounded px-4 py-2 mt-4 text-white top-4 right-4"
-        onClick={handleLogout}
-      >
-        Logga ut
-      </button>
+          <ProblemGrid competitionId={comp} selectedGrade="Gul" />
+
+          <button
+            className="absolute bg-[#505654] hover:bg-[#868f79] rounded px-4 py-2 mt-4 text-white top-4 right-4"
+            onClick={handleLogout}
+          >
+            Logga ut
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

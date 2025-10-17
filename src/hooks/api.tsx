@@ -137,30 +137,37 @@ export async function getProblemsByClimberId(climberId: string) {
 
 export async function submitProblemAttempt(
   climberId: string,
+  competitionId: number,
   problemId: number,
   data: Partial<{ attempts: number; top: number; bonus: number }>
 ) {
-  const res = await fetch(`${apiUrl}/attempts/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiToken}`,
-    },
-    body: JSON.stringify({
-      climber_id: climberId,
-      problem_id: problemId,
-      ...data,
-    }),
-  });
+  const res = await fetch(
+    `${apiUrl}/attempts/climber/${climberId}/competition/${competitionId}/save`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiToken}`,
+      },
+      body: JSON.stringify({
+        problem_id: problemId,
+        ...data,
+      }),
+    }
+  );
 
   if (!res.ok) throw new Error("Failed to save attempt");
   return res.json();
 }
 
-export async function getProblemAttempts(climberId: string, competitionId: number) {
+export async function getProblemAttempts(
+  climberId: string,
+  competitionId: number,
+  selectedGrade: string
+) {
   try {
     const response = await fetch(
-      `${apiUrl}/attempts/climber/${climberId}/competition/${competitionId}`,
+      `${apiUrl}/attempts/climber/${climberId}/competition/${competitionId}?selected_grade=${encodeURIComponent(selectedGrade)}`,
       {
         method: "GET",
         headers: {
@@ -169,14 +176,15 @@ export async function getProblemAttempts(climberId: string, competitionId: numbe
         },
       }
     );
+
     if (!response.ok) {
       throw new Error("Failed to fetch problem attempts. Please try again.");
     }
 
     const data = await response.json();
-    return data.problems || [];
+    return data; // Return full object {competition_id, climber_id, grade, problems}
   } catch (error) {
     console.error("Error fetching problem attempts:", error);
-    return [];
+    return null;
   }
 }

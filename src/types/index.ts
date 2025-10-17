@@ -15,8 +15,6 @@ export type Grade = {
 export type RegistrationData = {
   name: string;
   password: string;
-  roles: "Climber" | "Admin" | "";
-  grade: string;
 };
 
 export type LoginData = {
@@ -27,7 +25,6 @@ export type LoginData = {
 export type Climber = {
   id: string;
   name: string;
-  selected_grade: string;
   problemAttempts: Problem[];
 };
 
@@ -35,6 +32,10 @@ export type Competition = {
   id: number;
   name: string;
   date: string;
-  participants: number;
+  part: number;
   visible: boolean;
+};
+
+export type Competitions = {
+  competitions: Competition[];
 };
