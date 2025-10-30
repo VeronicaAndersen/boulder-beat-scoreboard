@@ -11,7 +11,6 @@ export default function Login() {
           className="w-48 h-28 object-contain drop-shadow-md"
         />
 
-        {/* Registration Form */}
         <LoginForm />
       </div>
     </div>

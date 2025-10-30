@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { LoginData } from "@/types";
+import type { LoginRequest } from "@/types";
 import { useAuthStore } from "@/store/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { loginClimber } from "@/hooks/api";
@@ -8,17 +8,18 @@ import { Label } from "@radix-ui/react-context-menu";
 
 export function LoginForm() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<LoginData>({ name: "", password: "" });
+  const [loginData, setLoginData] = useState<LoginRequest>({ username: "", password: "" });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { access_token, climber_id } = await loginClimber(formData);
+      const { access_token, refresh_token } = await loginClimber(loginData);
+
       useAuthStore.getState().setToken(access_token);
-      useAuthStore.getState().setClimberId(climber_id);
+
       localStorage.setItem(
-        "climber",
-        JSON.stringify({ climberId: climber_id, climberName: formData.name })
+        "tokens",
+        JSON.stringify({ access_token: access_token, refresh_token: refresh_token })
       );
       navigate("/profile");
     } catch (error) {
@@ -37,9 +38,9 @@ export function LoginForm() {
             <TextField.Root
               id="name"
               type="text"
-              placeholder="Enter your name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Användarnamn"
+              value={loginData.username}
+              onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
               required
               className="w-full"
             />
@@ -50,9 +51,9 @@ export function LoginForm() {
             <TextField.Root
               id="password"
               type="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Lösenord"
+              value={loginData.password}
+              onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
               required
               className="w-full"
             />
@@ -61,14 +62,14 @@ export function LoginForm() {
           <Button
             type="submit"
             className="w-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
-            disabled={!formData.name || !formData.password}
+            disabled={!loginData.username || !loginData.password}
           >
             Logga in
           </Button>
 
           <Link
             to="/register"
-            className="text-sm text-center text-[#505654] hover:underline justify-center flex"
+            className="text-sm text-center text-[#505654] underline justify-center flex"
           >
             Registrera dig
           </Link>
