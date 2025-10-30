@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import type { RegistrationData } from "@/types";
-import { getGrades, registerClimber } from "@/hooks/api";
+import { useState } from "react";
+import type { RegistrationRequest } from "@/types";
+import { registerClimber } from "@/hooks/api";
 import { Link, useNavigate } from "react-router-dom";
 import * as Label from "@radix-ui/react-label";
 import { Card, Button, TextField } from "@radix-ui/themes";
@@ -9,34 +9,18 @@ export function RegistrationForm() {
   const navigate = useNavigate();
 
   // Controlled from first render
-  const [formData, setFormData] = useState<RegistrationData>({
+  const [RegisterClimberData, setRegisterClimberData] = useState<RegistrationRequest>({
     name: "",
     password: "",
   });
-
-  const [, setGrades] = useState<string[]>([]);
-  const [loadingGrades, setLoadingGrades] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await getGrades();
-        setGrades(Array.isArray(data) ? data.filter(Boolean) : []);
-      } catch (err) {
-        console.error("Failed to fetch grades:", err);
-      } finally {
-        setLoadingGrades(false);
-      }
-    })();
-  }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const payload: RegistrationData = {
-        name: formData.name,
-        password: formData.password,
+      const payload: RegistrationRequest = {
+        name: RegisterClimberData.name,
+        password: RegisterClimberData.password,
       };
 
       await registerClimber(payload);
@@ -48,7 +32,7 @@ export function RegistrationForm() {
     }
   };
 
-  const isSubmitDisabled = loadingGrades || !formData.name || !formData.password;
+  const isSubmitDisabled = !RegisterClimberData.name || !RegisterClimberData.password;
 
   return (
     <div className="w-80 flex items-center justify-center">
@@ -61,8 +45,10 @@ export function RegistrationForm() {
               id="name"
               type="text"
               placeholder="Enter your name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={RegisterClimberData.name}
+              onChange={(e) =>
+                setRegisterClimberData({ ...RegisterClimberData, name: e.target.value })
+              }
               required
               className="w-full"
             />
@@ -74,8 +60,10 @@ export function RegistrationForm() {
               id="password"
               type="password"
               placeholder="Enter your password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              value={RegisterClimberData.password}
+              onChange={(e) =>
+                setRegisterClimberData({ ...RegisterClimberData, password: e.target.value })
+              }
               required
               className="w-full"
             />
@@ -89,11 +77,8 @@ export function RegistrationForm() {
             Registrera dig
           </Button>
 
-          <Link
-            to="/"
-            className="text-sm text-center text-[#505654] hover:underline justify-center flex"
-          >
-            Till Logga in
+          <Link to="/" className="text-sm text-center text-[#505654] underline justify-center flex">
+            Redan ett konto? Klicka här!
           </Link>
         </form>
       </Card>
