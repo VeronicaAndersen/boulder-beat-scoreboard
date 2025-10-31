@@ -5,7 +5,7 @@ import { SeasonForm } from "@/components/SeasonForm";
 import { SeasonList } from "@/components/SeasonList";
 import { CompetitionForm } from "@/components/CompetitionForm";
 import { CompetitionList } from "@/components/CompetitionList";
-import { Box, Tabs } from "@radix-ui/themes/components/index";
+import { Box, Button, Tabs } from "@radix-ui/themes/components/index";
 
 export default function Profile() {
   const { setClimber, setToken } = useAuthStore();
@@ -95,12 +95,12 @@ export default function Profile() {
           </Box>
         </Tabs.Root>
       </div>
-      <button
+      <Button
         className="absolute bg-[#505654] hover:bg-[#868f79] rounded px-4 py-2 mt-4 text-white top-4 right-4"
         onClick={handleLogout}
       >
         Logga ut
-      </button>
+      </Button>
     </div>
   );
 }

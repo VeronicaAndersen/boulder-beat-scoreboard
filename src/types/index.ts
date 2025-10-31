@@ -10,19 +10,11 @@ export type LoginResponse = {
   token_type: string;
 };
 
-
-
-
 //Climber
 export type RegistrationRequest = {
   name: string;
   password: string;
 };
-
-
-
-
-
 
 // Competition
 export type CompetitionRequest = {
@@ -44,9 +36,6 @@ export type CompetitionResponse = {
   round_no: number;
 };
 
-
-
-
 // Season
 export type SeasonRequest = {
   name?: string;
@@ -60,11 +49,6 @@ export type SeasonResponse = {
   created_at: string;
 };
 
-
-
-
-
-
 //Register climber to comp by level
 export type RegisterToComp = {
   level: number;
@@ -76,10 +60,6 @@ export type RegisterToCompResponse = {
   level: number;
   created_at: string;
 };
-
-
-
-
 
 //Score
 export type ScoreRequest = {
@@ -114,23 +94,15 @@ export type ScoreBatchResponse = {
   };
 };
 
-
-
-
-
 //Grade
 export type Grade = {
   level: number;
 };
 
-
-
-
-
 //UrlParams
 export type UrlParams = {
-  id?: number,
-  comp_id?: number,
-  level_no?: number,
-  problem_no?: number
-}
+  id?: number;
+  comp_id?: number;
+  level_no?: number;
+  problem_no?: number;
+};
