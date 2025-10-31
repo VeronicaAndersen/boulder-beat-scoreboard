@@ -1,4 +1,14 @@
-import { CompetitionRequest, UrlParams, LoginRequest, LoginResponse, RegistrationRequest, ScoreRequest, SeasonRequest, SeasonResponse, ScoreBatch } from "@/types";
+import {
+  CompetitionRequest,
+  UrlParams,
+  LoginRequest,
+  LoginResponse,
+  RegistrationRequest,
+  ScoreRequest,
+  SeasonRequest,
+  SeasonResponse,
+  ScoreBatch,
+} from "@/types";
 
 const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
 
@@ -121,6 +131,47 @@ export async function getClimberById(climberId: number) {
   }
 }
 
+
+
+
+//createCompetition
+export async function createCompetition(payload: CompetitionRequest) {
+  let tokens = JSON.parse(localStorage.getItem("tokens"));
+  let accessToken = tokens.access_token;
+
+  if (!accessToken) {
+    console.warn("No access token found");
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/competition`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.status === 401) {
+      refreshToken();
+      tokens = JSON.parse(localStorage.getItem("tokens"));
+      accessToken = tokens.access_token;
+    }
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Failed to create competition (${response.status}): ${text}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating competition:", error);
+    return null;
+  }
+}
+
 //TODO: name?: string, year?: string is not used yet
 export async function getCompetitions(name?: string, year?: string) {
   try {
@@ -143,19 +194,33 @@ export async function getCompetitions(name?: string, year?: string) {
   }
 }
 
-export async function registerClimberToCompetition(competitionId: number) {
+export async function registerClimberToCompetition(competitionId: number, level: number) {
+  let tokens = JSON.parse(localStorage.getItem("tokens"));
+  let accessToken = tokens.access_token;
+
+  if (!accessToken) {
+    console.warn("No access token found");
+    return null;
+  }
+  if (accessToken.status === 401) {
+    refreshToken();
+    tokens = JSON.parse(localStorage.getItem("tokens"));
+    accessToken = tokens.access_token;
+  }
   try {
     const response = await fetch(`${apiUrl}/competition/${competitionId}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
+      body: JSON.stringify({ level }),
     });
 
     if (!response.ok) {
       throw new Error("Failed to register to competition. Please try again.");
     }
-
+    console.log("Registration response status:", response.status);
     const data = await response.json();
     return data;
   } catch (error) {
@@ -164,36 +229,33 @@ export async function registerClimberToCompetition(competitionId: number) {
   }
 }
 
+
+
+
 //Seasons
 export async function createSeason(payload: SeasonRequest) {
-  const tokens = JSON.parse(localStorage.getItem("tokens"));
-  const accessToken = tokens.access_token;
+  let tokens = JSON.parse(localStorage.getItem("tokens"));
+  let accessToken = tokens.access_token;
 
   if (!accessToken) {
     console.warn("No access token found");
     return null;
   }
 
-  const makeRequest = async (token: string) => {
-    return fetch(`${apiUrl}/season`, {
+  try {
+    const response = await fetch(`${apiUrl}/season`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(payload),
     });
-  };
 
-  try {
-    let response = await makeRequest(accessToken);
-
-    // If token expired → try refresh once
     if (response.status === 401) {
-      const newTokens = await refreshToken();
-      if (!newTokens) throw new Error("Token refresh failed");
-
-      response = await makeRequest(newTokens.access_token);
+      refreshToken();
+      tokens = JSON.parse(localStorage.getItem("tokens"));
+      accessToken = tokens.access_token;
     }
 
     if (!response.ok) {
@@ -209,33 +271,27 @@ export async function createSeason(payload: SeasonRequest) {
 }
 //TODO: use payload that consist of name and year
 export async function getSeasons(payload: SeasonRequest): Promise<SeasonResponse[] | null> {
-  const tokens = JSON.parse(localStorage.getItem("tokens"));
-  const accessToken = tokens.access_token;
+  let tokens = JSON.parse(localStorage.getItem("tokens"));
+  let accessToken = tokens.access_token;
 
   if (!accessToken) {
     console.warn("No access token found");
     return null;
   }
 
-  const makeRequest = async (token: string) => {
-    return fetch(`${apiUrl}/season`, {
+  try {
+    const response = await fetch(`${apiUrl}/season`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
-  };
 
-  try {
-    let response = await makeRequest(accessToken);
-
-    // If token expired → try refresh once
     if (response.status === 401) {
-      const newTokens = await refreshToken();
-      if (!newTokens) throw new Error("Token refresh failed");
-
-      response = await makeRequest(newTokens.access_token);
+      refreshToken();
+      tokens = JSON.parse(localStorage.getItem("tokens"));
+      accessToken = tokens.access_token;
     }
 
     if (!response.ok) {
@@ -271,40 +327,12 @@ export async function getSeasonById(seasonId: number) {
   }
 }
 
-//createCompetition
-export async function createCompetition(payload: CompetitionRequest) {
-  const tokens = JSON.parse(localStorage.getItem("tokens"));
-  const accessToken = tokens.access_token;
 
-  if (!accessToken) {
-    console.warn("No access token found");
-    return null;
-  }
 
-  try {
-    const response = await fetch(`${apiUrl}/competition`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payload),
-    });
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Failed to create competition (${response.status}): ${text}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error creating competition:", error);
-    return null;
-  }
-}
 
 //Scores
-export async function updateScore(urlParams: UrlParams,payload: ScoreRequest) {
+export async function updateScore(urlParams: UrlParams, payload: ScoreRequest) {
   try {
     const response = await fetch(
       `${apiUrl}/competitions/${urlParams.comp_id}
@@ -331,10 +359,7 @@ export async function updateScore(urlParams: UrlParams,payload: ScoreRequest) {
   }
 }
 
-export async function updateScoreBatch(
-  urlParams: UrlParams,
-  payload: ScoreBatch
-) {
+export async function updateScoreBatch(urlParams: UrlParams, payload: ScoreBatch) {
   try {
     const response = await fetch(
       `${apiUrl}/competitions/${urlParams.comp_id}
