@@ -8,9 +8,12 @@ import {
   SeasonRequest,
   SeasonResponse,
   ScoreBatch,
+  MyInfoResponse,
 } from "@/types";
 
 const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+let tokens = JSON.parse(localStorage.getItem("tokens"));
+let accessToken = tokens.access_token;
 
 export async function loginClimber(payload: LoginRequest): Promise<LoginResponse> {
   const response = await fetch(`${apiUrl}/auth/login`, {
@@ -78,10 +81,7 @@ export async function registerClimber(payload: RegistrationRequest) {
   }
 }
 
-export async function getMyInfo() {
-  const tokens = JSON.parse(localStorage.getItem("tokens"));
-  const accessToken = tokens.access_token;
-
+export async function getMyInfo(): Promise<MyInfoResponse | null> {
   if (!accessToken) {
     console.warn("No access token found");
     return null;
@@ -95,6 +95,12 @@ export async function getMyInfo() {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+
+    if (response.status === 401) {
+      refreshToken();
+      tokens = JSON.parse(localStorage.getItem("tokens"));
+      accessToken = tokens.access_token;
+    }
 
     if (!response.ok) {
       throw new Error("Failed to fetch climber info. Please try again.");
@@ -131,14 +137,8 @@ export async function getClimberById(climberId: number) {
   }
 }
 
-
-
-
 //createCompetition
 export async function createCompetition(payload: CompetitionRequest) {
-  let tokens = JSON.parse(localStorage.getItem("tokens"));
-  let accessToken = tokens.access_token;
-
   if (!accessToken) {
     console.warn("No access token found");
     return null;
@@ -195,9 +195,6 @@ export async function getCompetitions(name?: string, year?: string) {
 }
 
 export async function registerClimberToCompetition(competitionId: number, level: number) {
-  let tokens = JSON.parse(localStorage.getItem("tokens"));
-  let accessToken = tokens.access_token;
-
   if (!accessToken) {
     console.warn("No access token found");
     return null;
@@ -229,14 +226,8 @@ export async function registerClimberToCompetition(competitionId: number, level:
   }
 }
 
-
-
-
 //Seasons
 export async function createSeason(payload: SeasonRequest) {
-  let tokens = JSON.parse(localStorage.getItem("tokens"));
-  let accessToken = tokens.access_token;
-
   if (!accessToken) {
     console.warn("No access token found");
     return null;
@@ -271,9 +262,6 @@ export async function createSeason(payload: SeasonRequest) {
 }
 //TODO: use payload that consist of name and year
 export async function getSeasons(payload: SeasonRequest): Promise<SeasonResponse[] | null> {
-  let tokens = JSON.parse(localStorage.getItem("tokens"));
-  let accessToken = tokens.access_token;
-
   if (!accessToken) {
     console.warn("No access token found");
     return null;
@@ -326,10 +314,6 @@ export async function getSeasonById(seasonId: number) {
     return null;
   }
 }
-
-
-
-
 
 //Scores
 export async function updateScore(urlParams: UrlParams, payload: ScoreRequest) {

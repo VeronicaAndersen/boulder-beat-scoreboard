@@ -6,6 +6,7 @@ import { SeasonList } from "@/components/SeasonList";
 import { CompetitionForm } from "@/components/CompetitionForm";
 import { CompetitionList } from "@/components/CompetitionList";
 import { Box, Button, Tabs } from "@radix-ui/themes/components/index";
+import ProfilInfo from "@/components/ProfilInfo";
 
 export default function Profile() {
   const { setClimber, setToken } = useAuthStore();
@@ -91,6 +92,7 @@ export default function Profile() {
               className="w-full max-w-2xl mt-6 bg-white/90 backdrop-blur rounded-lg shadow-lg p-4"
             >
               <h2 className="text-xl font-semibold mb-4">Profilinformation</h2>
+              <ProfilInfo />
             </Tabs.Content>
           </Box>
         </Tabs.Root>
