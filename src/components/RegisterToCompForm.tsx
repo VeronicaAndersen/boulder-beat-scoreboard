@@ -27,9 +27,13 @@ export default function RegisterToCompForm(competition) {
           Till anmälan
         </Button>
       </Popover.Trigger>
-      <Popover.Content size="2" maxWidth="400px" className="flex flex-col gap-4 p-4 bg-white/90 backdrop-blur rounded-lg shadow-lg">
+      <Popover.Content
+        size="2"
+        maxWidth="400px"
+        className="flex flex-col gap-4 p-4 bg-white/90 backdrop-blur rounded-lg shadow-lg"
+      >
         <Select.Root size="2" defaultValue="1" onValueChange={(value) => setLevel(Number(value))}>
-          <Select.Trigger aria-label="Välj svårighetsgrad"/>
+          <Select.Trigger aria-label="Välj svårighetsgrad" />
           <Select.Content>
             <Select.Item value="1">Lila</Select.Item>
             <Select.Item value="2">Rosa</Select.Item>

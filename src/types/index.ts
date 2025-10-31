@@ -16,6 +16,11 @@ export type RegistrationRequest = {
   password: string;
 };
 
+export type MyInfoResponse = {
+  id: number;
+  name: string;
+  created_at: string;
+};
 // Competition
 export type CompetitionRequest = {
   name: string;
