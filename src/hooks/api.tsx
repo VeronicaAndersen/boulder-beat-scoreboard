@@ -68,6 +68,36 @@ export async function registerClimber(payload: RegistrationRequest): Promise<voi
   }
 }
 
+export async function getMyInfo() {
+  const tokens = JSON.parse(localStorage.getItem("tokens"));
+  const accessToken = tokens.access_token;
+
+  if (!accessToken) {
+    console.warn("No access token found");
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/climber/me`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch climber info. Please try again.");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching climber info:", error);
+    return null;
+  }
+}
+
 export async function getClimberById(climberId: number) {
   if (!climberId) return null;
 
@@ -134,6 +164,7 @@ export async function registerClimberToCompetition(competitionId: number) {
   }
 }
 
+//Seasons
 export async function createSeason(payload: { name: string; year: string }) {
   const tokens = JSON.parse(localStorage.getItem("tokens"));
   const accessToken = tokens.access_token;
@@ -241,7 +272,7 @@ export async function getSeasonById(seasonId: number) {
   }
 }
 
-//createCompetitiom
+//createCompetition
 export async function createCompetition(payload: {
   name: string;
   description: string;
@@ -276,6 +307,88 @@ export async function createCompetition(payload: {
     return await response.json();
   } catch (error) {
     console.error("Error creating competition:", error);
+    return null;
+  }
+}
+
+//Scores
+export async function updateScore(
+  inParams: {
+    comp_id: number;
+    level_no: number;
+    problem_no: number;
+  },
+  payload: {
+    attempts_total: number;
+    got_bonus: boolean;
+    got_top: boolean;
+    attempts_to_bonus: number;
+    attempts_to_top: number;
+  }
+) {
+  try {
+    const response = await fetch(
+      `${apiUrl}/competitions/${inParams.comp_id}
+                                  /level/${inParams.level_no}
+                                  /problems/${inParams.problem_no}/score`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Failed to update score (${response.status}): ${text}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error update score:", error);
+    return null;
+  }
+}
+
+export async function updateScoreBatch(
+  inParams: {
+    comp_id: number;
+    level: number;
+    problem_no: number;
+  },
+  payload: {
+    items: {
+      attempts_total: number;
+      got_bonus: boolean;
+      got_top: boolean;
+      attempts_to_bonus: number;
+      attempts_to_top: number;
+    }
+  }
+) {
+  try {
+    const response = await fetch(
+      `${apiUrl}/competitions/${inParams.comp_id}
+                                  /level/${inParams.level}/scores/batch`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Failed to update score (${response.status}): ${text}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error update score:", error);
     return null;
   }
 }
