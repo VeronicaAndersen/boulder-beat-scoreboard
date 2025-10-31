@@ -1,4 +1,4 @@
-import { LoginRequest, LoginResponse, RegistrationRequest, SeasonResponse } from "@/types";
+import { CompetitionRequest, UrlParams, LoginRequest, LoginResponse, RegistrationRequest, ScoreRequest, SeasonRequest, SeasonResponse, ScoreBatch } from "@/types";
 
 const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
 
@@ -52,7 +52,7 @@ export async function refreshToken() {
   }
 }
 
-export async function registerClimber(payload: RegistrationRequest): Promise<void> {
+export async function registerClimber(payload: RegistrationRequest) {
   const response = await fetch(`${apiUrl}/climber/`, {
     method: "POST",
     headers: {
@@ -165,7 +165,7 @@ export async function registerClimberToCompetition(competitionId: number) {
 }
 
 //Seasons
-export async function createSeason(payload: { name: string; year: string }) {
+export async function createSeason(payload: SeasonRequest) {
   const tokens = JSON.parse(localStorage.getItem("tokens"));
   const accessToken = tokens.access_token;
 
@@ -207,9 +207,8 @@ export async function createSeason(payload: { name: string; year: string }) {
     return null;
   }
 }
-
-//TODO: name?: string, year?: string is not used yet
-export async function getSeasons(name?: string, year?: string): Promise<SeasonResponse[] | null> {
+//TODO: use payload that consist of name and year
+export async function getSeasons(payload: SeasonRequest): Promise<SeasonResponse[] | null> {
   const tokens = JSON.parse(localStorage.getItem("tokens"));
   const accessToken = tokens.access_token;
 
@@ -273,14 +272,7 @@ export async function getSeasonById(seasonId: number) {
 }
 
 //createCompetition
-export async function createCompetition(payload: {
-  name: string;
-  description: string;
-  comp_type: string;
-  comp_date: string;
-  season_id: number;
-  round_no: number;
-}) {
+export async function createCompetition(payload: CompetitionRequest) {
   const tokens = JSON.parse(localStorage.getItem("tokens"));
   const accessToken = tokens.access_token;
 
@@ -312,25 +304,12 @@ export async function createCompetition(payload: {
 }
 
 //Scores
-export async function updateScore(
-  inParams: {
-    comp_id: number;
-    level_no: number;
-    problem_no: number;
-  },
-  payload: {
-    attempts_total: number;
-    got_bonus: boolean;
-    got_top: boolean;
-    attempts_to_bonus: number;
-    attempts_to_top: number;
-  }
-) {
+export async function updateScore(urlParams: UrlParams,payload: ScoreRequest) {
   try {
     const response = await fetch(
-      `${apiUrl}/competitions/${inParams.comp_id}
-                                  /level/${inParams.level_no}
-                                  /problems/${inParams.problem_no}/score`,
+      `${apiUrl}/competitions/${urlParams.comp_id}
+                                  /level/${urlParams.level_no}
+                                  /problems/${urlParams.problem_no}/score`,
       {
         method: "PUT",
         headers: {
@@ -353,25 +332,13 @@ export async function updateScore(
 }
 
 export async function updateScoreBatch(
-  inParams: {
-    comp_id: number;
-    level: number;
-    problem_no: number;
-  },
-  payload: {
-    items: {
-      attempts_total: number;
-      got_bonus: boolean;
-      got_top: boolean;
-      attempts_to_bonus: number;
-      attempts_to_top: number;
-    }
-  }
+  urlParams: UrlParams,
+  payload: ScoreBatch
 ) {
   try {
     const response = await fetch(
-      `${apiUrl}/competitions/${inParams.comp_id}
-                                  /level/${inParams.level}/scores/batch`,
+      `${apiUrl}/competitions/${urlParams.comp_id}
+                                  /level/${urlParams.level_no}/scores/batch`,
       {
         method: "PUT",
         headers: {
