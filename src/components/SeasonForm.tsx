@@ -10,7 +10,7 @@ export function SeasonForm() {
     e.preventDefault();
     try {
       await createSeason(seasonData);
-      setSeasonData({ name: "", year: "" });
+      setSeasonData({ name: seasonData.name, year: seasonData.year });
     } catch (error) {
       console.error("Error creating season:", error);
       alert("Failed to create season. Please check your connection and try again.");

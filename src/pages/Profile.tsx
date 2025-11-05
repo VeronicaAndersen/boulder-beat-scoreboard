@@ -46,7 +46,7 @@ export default function Profile() {
         <img src="/grepp.svg" alt="Grepp logo" className="w-48 h-28 drop-shadow-md" />
 
         <Tabs.Root
-          defaultValue="season"
+          defaultValue="competition"
           className="w-full max-w-2xl mt-6 bg-white/90 backdrop-blur rounded-lg shadow-lg p-4"
         >
           <Tabs.List color="cyan">

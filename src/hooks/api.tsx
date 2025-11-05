@@ -9,6 +9,7 @@ import {
   SeasonResponse,
   ScoreBatch,
   MyInfoResponse,
+  RegisterToCompResponse,
 } from "@/types";
 
 const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
@@ -36,11 +37,12 @@ export async function loginClimber(payload: LoginRequest): Promise<LoginResponse
 function saveTokens(tokens: { access_token: string; refresh_token: string }) {
   localStorage.setItem("tokens", JSON.stringify(tokens));
 }
-// Refresh token Not working properly yet
-export async function refreshToken() {
+export async function refreshToken(): Promise<{
+  access_token: string;
+  refresh_token: string;
+} | null> {
   const tokens = JSON.parse(localStorage.getItem("tokens") || "{}");
   const refresh = tokens.refresh_token;
-  console.log("Refreshing token with refresh token:", refresh);
   if (!refresh) return null;
 
   try {
@@ -56,8 +58,7 @@ export async function refreshToken() {
     }
 
     const data = await response.json();
-
-    saveTokens(data);
+    saveTokens(data); // store the new tokens in localStorage
     return data;
   } catch (error) {
     console.error("Error refreshing token:", error);
@@ -171,11 +172,13 @@ export async function createCompetition(payload: CompetitionRequest) {
     return null;
   }
 }
-
-//TODO: name?: string, year?: string is not used yet
 export async function getCompetitions(name?: string, year?: string) {
   try {
-    const response = await fetch(`${apiUrl}/competition`, {
+    const params = new URLSearchParams();
+    if (name) params.append("name", name);
+    if (year) params.append("year", year);
+
+    const response = await fetch(`${apiUrl}/competition?${params.toString()}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -194,30 +197,83 @@ export async function getCompetitions(name?: string, year?: string) {
   }
 }
 
+export async function getCompRegistrationInfo(
+  competitionId: number
+): Promise<RegisterToCompResponse | null> {
+  if (!accessToken) {
+    console.warn("No access token found");
+    return null;
+  }
+
+  const fetchInfo = async (token: string) => {
+    const response = await fetch(`${apiUrl}/competition/${competitionId}/registration`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response;
+  };
+
+  try {
+    let response = await fetchInfo(accessToken);
+
+    if (response.status === 401) {
+      // Try refreshing token
+      const newTokens = await refreshToken();
+      if (!newTokens) return null;
+
+      // Retry request with new token
+      response = await fetchInfo(newTokens.access_token);
+      if (!response.ok) throw new Error("Failed again after token refresh.");
+    }
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch competition registration info.");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching competition registration info:", error);
+    return null;
+  }
+}
+
 export async function registerClimberToCompetition(competitionId: number, level: number) {
   if (!accessToken) {
     console.warn("No access token found");
     return null;
   }
-  if (accessToken.status === 401) {
-    refreshToken();
-    tokens = JSON.parse(localStorage.getItem("tokens"));
-    accessToken = tokens.access_token;
-  }
-  try {
+
+  const fetchInfo = async (token: string) => {
     const response = await fetch(`${apiUrl}/competition/${competitionId}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ level }),
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to register to competition. Please try again.");
+    return response;
+  };
+
+  try {
+    let response = await fetchInfo(accessToken);
+
+    if (response.status === 401) {
+      // Try refreshing token
+      const newTokens = await refreshToken();
+      if (!newTokens) return null;
+
+      // Retry request with new token
+      response = await fetchInfo(newTokens.access_token);
+      if (!response.ok) throw new Error("Failed again after token refresh.");
     }
-    console.log("Registration response status:", response.status);
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -260,48 +316,72 @@ export async function createSeason(payload: SeasonRequest) {
     return null;
   }
 }
-//TODO: use payload that consist of name and year
+
 export async function getSeasons(payload: SeasonRequest): Promise<SeasonResponse[] | null> {
   if (!accessToken) {
     console.warn("No access token found");
     return null;
   }
 
-  try {
-    const response = await fetch(`${apiUrl}/season`, {
+  const queryParams = new URLSearchParams();
+  if (payload.name) queryParams.append("name", payload.name);
+  if (payload.year) queryParams.append("year", payload.year.toString());
+
+  const fetchSeasons = async (token: string) => {
+    return await fetch(`${apiUrl}/season?${queryParams.toString()}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${token}`,
       },
     });
+  };
+
+  try {
+    let response = await fetchSeasons(accessToken);
 
     if (response.status === 401) {
-      refreshToken();
-      tokens = JSON.parse(localStorage.getItem("tokens"));
-      accessToken = tokens.access_token;
+      const newTokens = await refreshToken();
+      if (!newTokens) return null;
+
+      response = await fetchSeasons(newTokens.access_token);
     }
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`Failed to create season (${response.status}): ${text}`);
+      throw new Error(`Failed to fetch seasons (${response.status}): ${text}`);
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Error creating season:", error);
+    console.error("Error fetching seasons:", error);
     return null;
   }
 }
 
-export async function getSeasonById(seasonId: number) {
-  try {
-    const response = await fetch(`${apiUrl}/season/${seasonId}`, {
+export async function getSeasonById(seasonId: number): Promise<SeasonResponse | null> {
+  const tokens = JSON.parse(localStorage.getItem("tokens") || "{}");
+  const accessToken = tokens.access_token;
+
+  const fetchById = async (token?: string) => {
+    return await fetch(`${apiUrl}/season/${seasonId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
+  };
+
+  try {
+    let response = await fetchById(accessToken);
+
+    if (response.status === 401 && accessToken) {
+      const newTokens = await refreshToken();
+      if (!newTokens) return null;
+
+      response = await fetchById(newTokens.access_token);
+    }
 
     if (!response.ok) {
       throw new Error("Failed to fetch season. Please try again.");
@@ -316,12 +396,35 @@ export async function getSeasonById(seasonId: number) {
 }
 
 //Scores
+export async function getScoresBatch(urlParams: UrlParams) {
+  try {
+    const response = await fetch(
+      `${apiUrl}/competitions/${urlParams.comp_id}/level/${urlParams.level}/scores/batch`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch scores. Please try again.");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching scores:", error);
+    return null;
+  }
+}
+
 export async function updateScore(urlParams: UrlParams, payload: ScoreRequest) {
   try {
     const response = await fetch(
-      `${apiUrl}/competitions/${urlParams.comp_id}
-                                  /level/${urlParams.level_no}
-                                  /problems/${urlParams.problem_no}/score`,
+      `${apiUrl}/competitions/${urlParams.comp_id}/level/${urlParams.level}/problems/${urlParams.problem_no}/score`,
       {
         method: "PUT",
         headers: {
@@ -346,8 +449,7 @@ export async function updateScore(urlParams: UrlParams, payload: ScoreRequest) {
 export async function updateScoreBatch(urlParams: UrlParams, payload: ScoreBatch) {
   try {
     const response = await fetch(
-      `${apiUrl}/competitions/${urlParams.comp_id}
-                                  /level/${urlParams.level_no}/scores/batch`,
+      `${apiUrl}/competitions/${urlParams.comp_id}/level/${urlParams.level}/scores/batch`,
       {
         method: "PUT",
         headers: {
