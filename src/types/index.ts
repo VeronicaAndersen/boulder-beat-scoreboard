@@ -108,6 +108,6 @@ export type Grade = {
 export type UrlParams = {
   id?: number;
   comp_id?: number;
-  level_no?: number;
+  level?: number;
   problem_no?: number;
 };

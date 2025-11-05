@@ -8,7 +8,7 @@ export function SeasonList() {
   useEffect(() => {
     const fetchSeasons = async () => {
       try {
-        const seasons = await getSeasons();
+        const seasons = await getSeasons({});
         if (seasons) {
           setSeasonList(seasons);
         }

@@ -2,6 +2,7 @@ import { getCompetitions } from "@/hooks/api";
 import { CompetitionResponse } from "@/types";
 import { useState, useEffect } from "react";
 import RegisterToCompForm from "./RegisterToCompForm";
+import Scores from "./Scores";
 
 export function CompetitionList() {
   const [competitionList, setCompetitionList] = useState<CompetitionResponse[]>([]);
@@ -10,7 +11,7 @@ export function CompetitionList() {
     const fetchCompetitions = async () => {
       try {
         const competitions = await getCompetitions();
-        if (competitions) {
+        if (competitions.length > 0) {
           setCompetitionList(competitions);
         }
       } catch (error) {
@@ -25,12 +26,13 @@ export function CompetitionList() {
   return (
     <div className="mb-6">
       <h2 className="text-xl font-semibold mb-4">Tävlingar</h2>
-      {competitionList && competitionList.length > 0 ? (
+      {competitionList.length > 0 ? (
         <ul className="mb-4">
-          {competitionList.map((comps) => (
-            <li key={comps.id} className="mb-2">
-              <span className="font-medium">{comps.name}</span> - {comps.comp_date}
-              <RegisterToCompForm comp_id={comps.id} />
+          {competitionList.map((comp) => (
+            <li key={comp.id} className="mb-2">
+              <span className="font-medium">{comp.name}</span> - {comp.comp_date}
+              <RegisterToCompForm comp_id={comp.id} />
+              <Scores competition_id={comp.id} />
             </li>
           ))}
         </ul>
