@@ -1,24 +1,16 @@
-import { getMyInfo } from "@/hooks/api";
-import { MyInfoResponse } from "@/types";
-import { useEffect, useState } from "react";
+import CalloutMessage from "./CalloutMessage";
+import useGetUserInfo from "@/hooks/useGetUserInfo";
 
 export default function ProfilInfo() {
-  const [info, setInfo] = useState<MyInfoResponse | null>(null);
-
-  useEffect(() => {
-    const fetchInfo = async () => {
-      const data = await getMyInfo();
-      setInfo(data);
-    };
-    fetchInfo();
-  }, []);
+  const { userInfo, messageInfo } = useGetUserInfo();
 
   return (
-    <div>
-      {info ? (
+    <div className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4">Min Profil</h2>
+      {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
+      {userInfo ? (
         <div>
-          <p>ID: {info.id}</p>
-          <p>Namn: {info.name}</p>
+          <p>Namn: {userInfo.name}</p>
         </div>
       ) : (
         <p>Ingen information tillgänglig.</p>

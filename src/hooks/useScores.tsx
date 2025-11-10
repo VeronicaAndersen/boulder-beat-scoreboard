@@ -1,0 +1,66 @@
+import { useEffect, useState } from "react";
+import { getMyInfo, getCompRegistrationInfo, getScoresBatch } from "@/hooks/api";
+import { ScoreBatchResponse } from "@/types";
+
+export function useScores(competitionId: number) {
+  const [climberId, setClimberId] = useState<number | null>(null);
+  const [gradeLevel, setGradeLevel] = useState<number | null>(null);
+  const [problems, setProblems] = useState<ScoreBatchResponse[]>([]);
+  const [initialProblems, setInitialProblems] = useState<ScoreBatchResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+
+        const [user, registration] = await Promise.all([
+          getMyInfo(),
+          getCompRegistrationInfo(competitionId),
+        ]);
+
+        if (!active) return;
+
+        if (!user || !registration) {
+          setError("Kunde inte hämta användar- eller tävlingsdata.");
+          return;
+        }
+
+        setClimberId(user.id);
+        setGradeLevel(registration.level);
+
+        const scores = await getScoresBatch({
+          comp_id: competitionId,
+          level: registration.level,
+        });
+
+        setProblems(scores);
+        setInitialProblems(JSON.parse(JSON.stringify(scores)));
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Något gick fel vid inläsning.";
+        setError(msg);
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      active = false;
+    };
+  }, [competitionId]);
+
+  return {
+    climberId,
+    gradeLevel,
+    problems,
+    initialProblems,
+    setProblems,
+    isLoading,
+    error,
+  };
+}

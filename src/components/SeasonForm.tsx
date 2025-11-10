@@ -1,29 +1,37 @@
 import { createSeason } from "@/hooks/api";
-import { SeasonRequest } from "@/types";
+import { MessageProps, SeasonRequest } from "@/types";
 import { Button } from "@radix-ui/themes";
 import { useState } from "react";
+import CalloutMessage from "./CalloutMessage";
 
 export function SeasonForm() {
   const [seasonData, setSeasonData] = useState<SeasonRequest>({ name: "", year: "" });
+  const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await createSeason(seasonData);
+      const result = await createSeason(seasonData);
+      if (!result) {
+        console.error("Failed to create season:", result.statusText);
+        setMessageInfo({ message: "Ett fel uppstod vid skapandet av säsongen.", color: "red" });
+        return;
+      }
+      setMessageInfo({ message: "Säsong skapad!", color: "blue" });
       setSeasonData({ name: seasonData.name, year: seasonData.year });
     } catch (error) {
       console.error("Error creating season:", error);
-      alert("Failed to create season. Please check your connection and try again.");
+      setMessageInfo({ message: "Ett fel uppstod vid skapandet av säsongen.", color: "red" });
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-md mx-auto p-6 bg-white/90 backdrop-blur rounded-lg shadow-md"
+      className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md"
     >
       <h1 className="text-2xl font-semibold text-center mb-4">Skapa säsong</h1>
-
+      {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
       <label htmlFor="season_name" className="block mb-1">
         Namn
       </label>
@@ -49,7 +57,7 @@ export function SeasonForm() {
       />
 
       <Button
-        className="mt-4 w-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
+        className="mt-4 w-full rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
         type="submit"
       >
         Skapa säsong

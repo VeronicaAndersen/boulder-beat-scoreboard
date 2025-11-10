@@ -1,22 +1,25 @@
 import { getCompetitions } from "@/hooks/api";
-import { CompetitionResponse } from "@/types";
+import { CompetitionResponse, MessageProps } from "@/types";
 import { useState, useEffect } from "react";
 import RegisterToCompForm from "./RegisterToCompForm";
-import Scores from "./Scores";
+import CalloutMessage from "./CalloutMessage";
+import ProblemGrid from "./ProblemGrid";
 
 export function CompetitionList() {
   const [competitionList, setCompetitionList] = useState<CompetitionResponse[]>([]);
+  const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
 
   useEffect(() => {
     const fetchCompetitions = async () => {
       try {
         const competitions = await getCompetitions();
+
         if (competitions.length > 0) {
           setCompetitionList(competitions);
         }
       } catch (error) {
         console.error("Error fetching competitions:", error);
-        alert("Failed to fetch competitions. Please check your connection and try again.");
+        setMessageInfo({ message: "Ett fel uppstod vid hämtning av tävlingar.", color: "red" });
       }
     };
 
@@ -24,20 +27,31 @@ export function CompetitionList() {
   }, []);
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Tävlingar</h2>
+      {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
       {competitionList.length > 0 ? (
-        <ul className="mb-4">
+        <ul className="space-y-4">
           {competitionList.map((comp) => (
-            <li key={comp.id} className="mb-2">
-              <span className="font-medium">{comp.name}</span> - {comp.comp_date}
-              <RegisterToCompForm comp_id={comp.id} />
-              <Scores competition_id={comp.id} />
+            <li key={comp.id} className="m-2 p-4 border border-gray-300 rounded-lg flex flex-col">
+              <p>
+                <b>{comp.name}</b> - {comp.comp_date}
+              </p>
+              <RegisterToCompForm
+                id={comp.id}
+                name={comp.name}
+                comp_date={comp.comp_date}
+                description={comp.description}
+                comp_type={comp.comp_type}
+                season_id={comp.season_id}
+                round_no={comp.round_no}
+              />
+              <ProblemGrid competitionId={comp.id} />
             </li>
           ))}
         </ul>
       ) : (
-        <p>Inga säsonger tillgängliga.</p>
+        <p>Inga tävlingar tillgängliga.</p>
       )}
     </div>
   );

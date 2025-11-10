@@ -1,9 +1,11 @@
 import { getSeasons } from "@/hooks/api";
-import { SeasonResponse } from "@/types";
+import { MessageProps, SeasonResponse } from "@/types";
 import { useEffect, useState } from "react";
+import CalloutMessage from "./CalloutMessage";
 
 export function SeasonList() {
   const [seasonList, setSeasonList] = useState<SeasonResponse[]>([]);
+  const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
 
   useEffect(() => {
     const fetchSeasons = async () => {
@@ -14,7 +16,7 @@ export function SeasonList() {
         }
       } catch (error) {
         console.error("Error fetching seasons:", error);
-        alert("Failed to fetch seasons. Please check your connection and try again.");
+        setMessageInfo({ message: "Ett fel uppstod vid hämtning av säsonger.", color: "red" });
       }
     };
 
@@ -22,14 +24,16 @@ export function SeasonList() {
   }, []);
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Säsonger</h2>
+    <div className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold text-center mb-4">Säsonger</h2>
+      {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
       {seasonList && seasonList.length > 0 ? (
         <ul>
           {seasonList.map((season) => (
             <li key={season.id} className="mb-2">
-              <span className="font-medium">{season.name}</span> - {season.year}{" "}
-              {/* Year not in db */}
+              <span className="font-medium">
+                {season.id} - {season.name}
+              </span>
             </li>
           ))}
         </ul>
