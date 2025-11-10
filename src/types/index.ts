@@ -19,6 +19,7 @@ export type RegistrationRequest = {
 export type MyInfoResponse = {
   id: number;
   name: string;
+  user_scope: string;
   created_at: string;
 };
 // Competition
@@ -75,18 +76,18 @@ export type ScoreRequest = {
   attempts_to_top: number;
 };
 
-export type ScoreResponse = {
-  attempts_total: number;
-  got_bonus: boolean;
-  got_top: boolean;
-  attempts_to_bonus: number;
-  attempts_to_top: number;
-  problem_no: number;
-};
+// export type ScoreResponse = {
+//   attempts_total: number;
+//   got_bonus: boolean;
+//   got_top: boolean;
+//   attempts_to_bonus: number;
+//   attempts_to_top: number;
+//   problem_no: number;
+// };
 
-export type ScoreBatch = {
-  items: ScoreResponse[];
-};
+// export type ScoreBatch = {
+//   items: ScoreResponse[];
+// };
 
 export type ScoreBatchResponse = {
   problem_no: number;
@@ -97,6 +98,34 @@ export type ScoreBatchResponse = {
     attempts_to_bonus: number;
     attempts_to_top: number;
   };
+};
+
+export type ScoreBatch = {
+  items: {
+    problem_no: number;
+    attempts_total: number;
+    got_bonus: boolean;
+    got_top: boolean;
+    attempts_to_bonus: number;
+    attempts_to_top: number;
+  }[];
+};
+
+export type ScoreResponse = {
+  attempts_total: number;
+  got_bonus: boolean;
+  got_top: boolean;
+  attempts_to_bonus: number;
+  attempts_to_top: number;
+};
+
+export type ProblemScoreBulkResult = {
+  problem_no: number;
+  score: ScoreResponse;
+};
+
+export type CompetitionProps = {
+  competition_id: number;
 };
 
 //Grade
@@ -110,4 +139,28 @@ export type UrlParams = {
   comp_id?: number;
   level?: number;
   problem_no?: number;
+};
+
+export type MessageProps = {
+  message: string;
+  color:
+    | "ruby"
+    | "gray"
+    | "gold"
+    | "bronze"
+    | "brown"
+    | "yellow"
+    | "amber"
+    | "orange"
+    | "tomato"
+    | "red"
+    | "crimson"
+    | "pink"
+    | "plum"
+    | "purple"
+    | "violet"
+    | "iris"
+    | "indigo"
+    | "blue"
+    | "sky";
 };

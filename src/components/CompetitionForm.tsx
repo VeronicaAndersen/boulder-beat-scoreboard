@@ -1,7 +1,8 @@
 import { createCompetition } from "@/hooks/api";
-import { CompetitionRequest } from "@/types";
+import { CompetitionRequest, MessageProps } from "@/types";
 import { Button } from "@radix-ui/themes";
 import { useState } from "react";
+import CalloutMessage from "./CalloutMessage";
 
 export function CompetitionForm() {
   const [competitionData, setCompetitionData] = useState<CompetitionRequest>({
@@ -12,14 +13,21 @@ export function CompetitionForm() {
     season_id: 0,
     round_no: 0,
   });
+  const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      createCompetition(competitionData);
+      const result = await createCompetition(competitionData);
+      if (!result) {
+        console.error("Failed to create competition:", result.statusText);
+        setMessageInfo({ message: "Ett fel uppstod vid skapandet av tävlingen.", color: "red" });
+        return;
+      }
+      setMessageInfo({ message: "Tävling skapad!", color: "blue" });
     } catch (error) {
       console.error("Error creating competition:", error);
-      alert("Failed to create competition. Please check your connection and try again.");
+      setMessageInfo({ message: "Ett fel uppstod vid skapandet av tävlingen.", color: "red" });
     }
 
     // Reset form after submission
@@ -35,8 +43,12 @@ export function CompetitionForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md"
+      >
         <h1 className="text-2xl font-semibold text-center mb-4">Skapa tävling</h1>
+        {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
         <label htmlFor="competition_name" className="block mb-1">
           Namn
         </label>
@@ -114,7 +126,7 @@ export function CompetitionForm() {
         />
 
         <Button
-          className="mt-4 w-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
+          className="mt-4 w-full rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
           type="submit"
         >
           Skapa tävling

@@ -4,11 +4,12 @@ import { registerClimber } from "@/hooks/api";
 import { Link, useNavigate } from "react-router-dom";
 import * as Label from "@radix-ui/react-label";
 import { Card, Button, TextField } from "@radix-ui/themes";
+import CalloutMessage from "./CalloutMessage";
 
 export function RegistrationForm() {
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Controlled from first render
   const [RegisterClimberData, setRegisterClimberData] = useState<RegistrationRequest>({
     name: "",
     password: "",
@@ -16,27 +17,28 @@ export function RegistrationForm() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    const payload: RegistrationRequest = {
+      name: RegisterClimberData.name,
+      password: RegisterClimberData.password,
+    };
 
-    try {
-      const payload: RegistrationRequest = {
-        name: RegisterClimberData.name,
-        password: RegisterClimberData.password,
-      };
-
-      await registerClimber(payload);
-      alert("Registration successful! You can now log in.");
+    const result = await registerClimber(payload);
+    if (!result.success) {
+      setErrorMessage(result.message);
+    } else {
       navigate("/");
-    } catch (error) {
-      console.error("Error registering climber:", error);
-      alert("Failed to register climber. Please check your connection and try again.");
     }
   };
 
-  const isSubmitDisabled = !RegisterClimberData.name || !RegisterClimberData.password;
+  const isSubmitDisabled =
+    !RegisterClimberData.name ||
+    !RegisterClimberData.password ||
+    RegisterClimberData.password.length < 6;
 
   return (
     <div className="w-80 flex items-center justify-center">
       <Card className="w-full h-fit max-w-md p-6 bg-white/95 backdrop-blur shadow-xl">
+        {errorMessage && <CalloutMessage message={errorMessage} color="red" />}
         <form onSubmit={handleRegister} className="space-y-6">
           <h2 className="text-2xl font-semibold text-center mb-4">Registrera dig</h2>
           <div className="space-y-2">
@@ -67,11 +69,14 @@ export function RegistrationForm() {
               required
               className="w-full"
             />
+            {RegisterClimberData.password.length > 0 && RegisterClimberData.password.length < 6 && (
+              <p className="text-red-500 text-xs italic">Måste innehålla minst sex tecken.</p>
+            )}
           </div>
 
           <Button
             type="submit"
-            className="w-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
+            className="w-full rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
             disabled={isSubmitDisabled}
           >
             Registrera dig
