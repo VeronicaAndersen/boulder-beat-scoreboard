@@ -20,7 +20,6 @@ export function LoginForm() {
 
     try {
       const { access_token, refresh_token } = await loginClimber(loginData);
-      console.log(access_token, refresh_token);
       if (!access_token || !refresh_token) {
         setErrorMessage("Inloggning misslyckades. Kontrollera dina uppgifter och försök igen.");
         setLoading(false);
