@@ -1,20 +1,29 @@
 import { registerClimberToCompetition } from "@/hooks/api";
 import { CompetitionResponse } from "@/types";
-import { Button, Dialog, Flex, Select } from "@radix-ui/themes";
+import { Button, Dialog, Flex, Select, Spinner } from "@radix-ui/themes";
 import { useState } from "react";
 import CalloutMessage from "./CalloutMessage";
 
 export default function RegisterToCompForm({ id, name, comp_date }: CompetitionResponse) {
   const [level, setLevel] = useState<number>(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleRegidtration = async () => {
-    const result = await registerClimberToCompetition(id, level);
+    setLoading(true);
+    setErrorMessage(null);
+    try {
+      const result = await registerClimberToCompetition(id, level);
 
-    if (!result.success) {
-      setErrorMessage(result.message);
-    } else {
-      setErrorMessage(null);
+      if (!result.success) {
+        setErrorMessage(result.message);
+      } else {
+        setErrorMessage(null);
+      }
+    } catch (error) {
+      setErrorMessage("Ett fel uppstod vid anmälan.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,6 +49,7 @@ export default function RegisterToCompForm({ id, name, comp_date }: CompetitionR
               size="2"
               defaultValue="1"
               onValueChange={(value) => setLevel(Number(value))}
+              disabled={loading}
             >
               <Select.Trigger aria-label="Välj svårighetsgrad" />
               <Select.Content>
@@ -56,16 +66,23 @@ export default function RegisterToCompForm({ id, name, comp_date }: CompetitionR
 
           <Flex gap="3" mt="4" justify="end">
             <Dialog.Close>
-              <Button variant="soft" color="gray" className="cursor-pointer rounded-full">
+              <Button variant="soft" color="gray" className="cursor-pointer rounded-full" disabled={loading}>
                 Avbryt
               </Button>
             </Dialog.Close>
             <Dialog.Close>
               <Button
                 onClick={handleRegidtration}
-                className="bg-[#505654] hover:bg-[#868f79] text-white cursor-pointer rounded-full"
+                className="bg-[#505654] hover:bg-[#868f79] text-white cursor-pointer rounded-full flex items-center justify-center"
+                disabled={loading}
               >
-                Bekräfta
+                {loading ? (
+                  <>
+                    <Spinner size="2" className="mr-2" /> Anmäler...
+                  </>
+                ) : (
+                  "Bekräfta"
+                )}
               </Button>
             </Dialog.Close>
           </Flex>

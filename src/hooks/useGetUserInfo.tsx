@@ -5,9 +5,11 @@ import { getMyInfo } from "./api";
 export default function useGetUserInfo() {
   const [userInfo, setUserInfo] = useState<MyInfoResponse | null>(null);
   const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchInfo = async () => {
+      setLoading(true);
       try {
         const info = await getMyInfo();
         if (info) {
@@ -19,9 +21,11 @@ export default function useGetUserInfo() {
           message: "Ett fel uppstod vid hämtning av användarinformation.",
           color: "red",
         });
+      } finally {
+        setLoading(false);
       }
     };
     fetchInfo();
   }, []);
-  return { userInfo, messageInfo };
+  return { userInfo, messageInfo, loading };
 }

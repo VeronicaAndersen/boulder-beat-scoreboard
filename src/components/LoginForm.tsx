@@ -3,7 +3,7 @@ import type { LoginRequest } from "@/types";
 import { useAuthStore } from "@/store/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { loginClimber } from "@/hooks/api";
-import { Button, Card, TextField } from "@radix-ui/themes";
+import { Button, Card, TextField, Spinner } from "@radix-ui/themes";
 import { Label } from "@radix-ui/react-context-menu";
 import CalloutMessage from "./CalloutMessage";
 
@@ -11,22 +11,32 @@ export function LoginForm() {
   const navigate = useNavigate();
   const [loginData, setLoginData] = useState<LoginRequest>({ username: "", password: "" });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMessage(null);
 
-    const { access_token, refresh_token } = await loginClimber(loginData);
-    if (!access_token || !refresh_token) {
-      setErrorMessage("Inloggning misslyckades. Kontrollera dina uppgifter och försök igen.");
-      return;
+    try {
+      const { access_token, refresh_token } = await loginClimber(loginData);
+      if (!access_token || !refresh_token) {
+        setErrorMessage("Inloggning misslyckades. Kontrollera dina uppgifter och försök igen.");
+        setLoading(false);
+        return;
+      }
+      useAuthStore.getState().setToken(access_token);
+
+      localStorage.setItem(
+        "tokens",
+        JSON.stringify({ access_token: access_token, refresh_token: refresh_token })
+      );
+      navigate("/profile");
+    } catch (err) {
+      setErrorMessage("Något gick fel vid inloggning. Försök igen.");
+    } finally {
+      setLoading(false);
     }
-    useAuthStore.getState().setToken(access_token);
-
-    localStorage.setItem(
-      "tokens",
-      JSON.stringify({ access_token: access_token, refresh_token: refresh_token })
-    );
-    navigate("/profile");
   };
 
   return (
@@ -45,6 +55,7 @@ export function LoginForm() {
               onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
               required
               className="w-full"
+              disabled={loading}
             />
           </div>
 
@@ -58,15 +69,22 @@ export function LoginForm() {
               onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
               required
               className="w-full"
+              disabled={loading}
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full cursor-pointer rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
-            disabled={!loginData.username || !loginData.password}
+            className="w-full cursor-pointer rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed flex items-center justify-center"
+            disabled={!loginData.username || !loginData.password || loading}
           >
-            Logga in
+            {loading ? (
+              <>
+                <Spinner size="2" className="mr-2" /> Loggar in...
+              </>
+            ) : (
+              "Logga in"
+            )}
           </Button>
 
           <Link

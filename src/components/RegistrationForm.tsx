@@ -3,12 +3,13 @@ import type { RegistrationRequest } from "@/types";
 import { registerClimber } from "@/hooks/api";
 import { Link, useNavigate } from "react-router-dom";
 import * as Label from "@radix-ui/react-label";
-import { Card, Button, TextField } from "@radix-ui/themes";
+import { Card, Button, TextField, Spinner } from "@radix-ui/themes";
 import CalloutMessage from "./CalloutMessage";
 
 export function RegistrationForm() {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [RegisterClimberData, setRegisterClimberData] = useState<RegistrationRequest>({
     name: "",
@@ -17,23 +18,30 @@ export function RegistrationForm() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMessage(null);
     const payload: RegistrationRequest = {
       name: RegisterClimberData.name,
       password: RegisterClimberData.password,
     };
 
-    const result = await registerClimber(payload);
-    if (!result.success) {
-      setErrorMessage(result.message);
-    } else {
-      navigate("/");
+    try {
+      const result = await registerClimber(payload);
+      if (!result.success) {
+        setErrorMessage(result.message);
+      } else {
+        navigate("/");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   const isSubmitDisabled =
     !RegisterClimberData.name ||
     !RegisterClimberData.password ||
-    RegisterClimberData.password.length < 6;
+    RegisterClimberData.password.length < 6 ||
+    loading;
 
   return (
     <div className="w-80 flex items-center justify-center">
@@ -53,6 +61,7 @@ export function RegistrationForm() {
               }
               required
               className="w-full"
+              disabled={loading}
             />
           </div>
 
@@ -68,6 +77,7 @@ export function RegistrationForm() {
               }
               required
               className="w-full"
+              disabled={loading}
             />
             {RegisterClimberData.password.length > 0 && RegisterClimberData.password.length < 6 && (
               <p className="text-red-500 text-xs italic">Måste innehålla minst sex tecken.</p>
@@ -76,10 +86,16 @@ export function RegistrationForm() {
 
           <Button
             type="submit"
-            className="w-full cursor-pointer rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
+            className="w-full cursor-pointer rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed flex items-center justify-center"
             disabled={isSubmitDisabled}
           >
-            Registrera dig
+            {loading ? (
+              <>
+                <Spinner size="2" className="mr-2" /> Registrerar...
+              </>
+            ) : (
+              "Registrera dig"
+            )}
           </Button>
 
           <Link to="/" className="w-fit text-sm text-center text-[#505654] underline flex justify-center mx-auto">

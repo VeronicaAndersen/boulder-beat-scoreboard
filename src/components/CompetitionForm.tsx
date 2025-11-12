@@ -1,6 +1,6 @@
 import { createCompetition } from "@/hooks/api";
 import { CompetitionRequest, MessageProps } from "@/types";
-import { Button } from "@radix-ui/themes";
+import { Button, Spinner } from "@radix-ui/themes";
 import { useState } from "react";
 import CalloutMessage from "./CalloutMessage";
 
@@ -14,9 +14,11 @@ export function CompetitionForm() {
     round_no: 0,
   });
   const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const result = await createCompetition(competitionData);
       if (!result) {
@@ -25,20 +27,21 @@ export function CompetitionForm() {
         return;
       }
       setMessageInfo({ message: "Tävling skapad!", color: "blue" });
+      // Reset form after submission
+      setCompetitionData({
+        name: "",
+        description: "",
+        comp_type: "",
+        comp_date: "",
+        season_id: 0,
+        round_no: 0,
+      });
     } catch (error) {
       console.error("Error creating competition:", error);
       setMessageInfo({ message: "Ett fel uppstod vid skapandet av tävlingen.", color: "red" });
+    } finally {
+      setLoading(false);
     }
-
-    // Reset form after submission
-    setCompetitionData({
-      name: "",
-      description: "",
-      comp_type: "",
-      comp_date: "",
-      season_id: 0,
-      round_no: 0,
-    });
   };
 
   return (
@@ -59,6 +62,7 @@ export function CompetitionForm() {
           value={competitionData.name}
           onChange={(e) => setCompetitionData({ ...competitionData, name: e.target.value })}
           className="w-full p-2 rounded-lg border"
+          disabled={loading}
         />
 
         <label htmlFor="competition_description" className="block mb-1">
@@ -71,6 +75,7 @@ export function CompetitionForm() {
           value={competitionData.description}
           onChange={(e) => setCompetitionData({ ...competitionData, description: e.target.value })}
           className="w-full p-2 rounded-lg border"
+          disabled={loading}
         />
 
         <label htmlFor="competition_type" className="block mb-1">
@@ -83,6 +88,7 @@ export function CompetitionForm() {
           value={competitionData.comp_type}
           onChange={(e) => setCompetitionData({ ...competitionData, comp_type: e.target.value })}
           className="w-full p-2 rounded-lg border"
+          disabled={loading}
         />
 
         <label htmlFor="competition_date" className="block mb-1">
@@ -95,6 +101,7 @@ export function CompetitionForm() {
           value={competitionData.comp_date}
           onChange={(e) => setCompetitionData({ ...competitionData, comp_date: e.target.value })}
           className="w-full p-2 rounded-lg border"
+          disabled={loading}
         />
 
         <label htmlFor="season_id" className="block mb-1">
@@ -109,6 +116,7 @@ export function CompetitionForm() {
             setCompetitionData({ ...competitionData, season_id: Number(e.target.value) })
           }
           className="w-full p-2 rounded-lg border"
+          disabled={loading}
         />
 
         <label htmlFor="round_no" className="block mb-1">
@@ -123,13 +131,21 @@ export function CompetitionForm() {
             setCompetitionData({ ...competitionData, round_no: Number(e.target.value) })
           }
           className="w-full p-2 rounded-lg border"
+          disabled={loading}
         />
 
         <Button
-          className="mt-4 w-full cursor-pointer rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
+          className="mt-4 w-full cursor-pointer rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed flex items-center justify-center"
           type="submit"
+          disabled={loading}
         >
-          Skapa tävling
+          {loading ? (
+            <>
+              <Spinner size="2" className="mr-2" /> Skapar tävling...
+            </>
+          ) : (
+            "Skapa tävling"
+          )}
         </Button>
       </form>
     </>

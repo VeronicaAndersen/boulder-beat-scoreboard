@@ -3,7 +3,7 @@ import { ScoreBatchResponse } from "@/types";
 import { useScores } from "@/hooks/useScores";
 import CalloutMessage from "./CalloutMessage";
 import { useUpdateScoreBatch } from "@/hooks/useUpdateScoreBatchResult";
-import { Button } from "@radix-ui/themes";
+import { Button, Spinner } from "@radix-ui/themes";
 
 interface ProblemGridProps {
   competitionId: number;
@@ -47,7 +47,14 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
     updateField(p.problem_no, key, Math.max(0, Number(p.score[key]) - 1));
   };
 
-  if (isLoading) return <p>Hämtar poäng...</p>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Spinner size="3" />
+        <span className="ml-2">Hämtar poäng...</span>
+      </div>
+    );
+  }
   if (error) return <p className="text-red-600">{error}</p>;
 
   return (
