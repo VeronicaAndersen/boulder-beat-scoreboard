@@ -93,7 +93,7 @@ export async function registerClimber(payload: RegistrationRequest) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  
+
   if (response.status === 409) {
     return { success: false, message: "Detta namnet är redan taget." };
   }
@@ -163,9 +163,12 @@ export async function getCompRegistrationInfo(
 }
 
 export async function checkRegistration(competitionId: number): Promise<boolean | null> {
-  const response = await fetchWithAuth(`${apiUrl}/competition/${competitionId}/registration/check`, {
-    method: "GET",
-  });
+  const response = await fetchWithAuth(
+    `${apiUrl}/competition/${competitionId}/registration/check`,
+    {
+      method: "GET",
+    }
+  );
   if (!response || !response.ok) return null;
   return await response.json();
 }

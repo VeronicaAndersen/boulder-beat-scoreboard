@@ -34,6 +34,7 @@ export function LoginForm() {
       navigate("/profile");
     } catch (err) {
       setErrorMessage("Något gick fel vid inloggning. Försök igen.");
+      console.error(err);
     } finally {
       setLoading(false);
     }

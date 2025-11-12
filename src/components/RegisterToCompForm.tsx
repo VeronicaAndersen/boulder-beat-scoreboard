@@ -8,7 +8,12 @@ interface RegisterToCompFormProps extends CompetitionResponse {
   onRegistrationSuccess?: () => void;
 }
 
-export default function RegisterToCompForm({ id, name, comp_date, onRegistrationSuccess }: RegisterToCompFormProps) {
+export default function RegisterToCompForm({
+  id,
+  name,
+  comp_date,
+  onRegistrationSuccess,
+}: RegisterToCompFormProps) {
   const [level, setLevel] = useState<number>(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -30,6 +35,7 @@ export default function RegisterToCompForm({ id, name, comp_date, onRegistration
       }
     } catch (error) {
       setErrorMessage("Ett fel uppstod vid anmälan.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -74,7 +80,12 @@ export default function RegisterToCompForm({ id, name, comp_date, onRegistration
 
           <Flex gap="3" mt="4" justify="end">
             <Dialog.Close>
-              <Button variant="soft" color="gray" className="cursor-pointer rounded-full" disabled={loading}>
+              <Button
+                variant="soft"
+                color="gray"
+                className="cursor-pointer rounded-full"
+                disabled={loading}
+              >
                 Avbryt
               </Button>
             </Dialog.Close>

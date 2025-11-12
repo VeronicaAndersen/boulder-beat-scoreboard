@@ -16,7 +16,7 @@ export default function ActiveCompetition() {
       try {
         // Get all competitions
         const competitions = await getCompetitions();
-        
+
         if (competitions.length === 0) {
           setLoading(false);
           return;
@@ -94,7 +94,7 @@ export default function ActiveCompetition() {
     <div className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-center mb-4">Aktiv Tävling</h2>
       {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
-      
+
       <div className="mb-4 p-4 border border-gray-300 rounded-lg">
         <h3 className="text-xl font-semibold mb-2">{activeCompetition.name}</h3>
         <p className="text-gray-600 mb-1">
@@ -111,4 +111,3 @@ export default function ActiveCompetition() {
     </div>
   );
 }
-

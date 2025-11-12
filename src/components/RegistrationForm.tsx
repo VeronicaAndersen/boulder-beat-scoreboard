@@ -99,7 +99,10 @@ export function RegistrationForm() {
             )}
           </Button>
 
-          <Link to="/" className="w-fit text-sm text-center text-[#505654] underline flex justify-center mx-auto">
+          <Link
+            to="/"
+            className="w-fit text-sm text-center text-[#505654] underline flex justify-center mx-auto"
+          >
             Redan ett konto? Klicka här!
           </Link>
         </form>

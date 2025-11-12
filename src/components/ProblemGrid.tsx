@@ -19,12 +19,12 @@ const gradeColors: Record<number, string> = {
   7: "#000000",
 };
 
-
 export default function ProblemGrid({ competitionId }: ProblemGridProps) {
-  const { problems, initialProblems, setProblems, isLoading, error, gradeLevel } = useScores(competitionId);
+  const { problems, initialProblems, setProblems, isLoading, error, gradeLevel } =
+    useScores(competitionId);
   const { saving, error: saveError, saveMessage, saveAll } = useUpdateScoreBatch();
-  
-  const gradeColor = gradeLevel ? gradeColors[gradeLevel] ?? "#D1D5DB" : "#D1D5DB";
+
+  const gradeColor = gradeLevel ? (gradeColors[gradeLevel] ?? "#D1D5DB") : "#D1D5DB";
   const updateField = (
     problemNo: number,
     field: keyof ScoreBatchResponse["score"],
@@ -82,9 +82,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
 
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Problem {p.problem_no}
-                  </h3>
+                  <h3 className="text-lg font-semibold text-gray-800">Problem {p.problem_no}</h3>
                   <span
                     className="w-4 h-4 rounded-full border border-gray-300"
                     style={{ backgroundColor: gradeColor }}

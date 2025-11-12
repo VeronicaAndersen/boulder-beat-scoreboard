@@ -3,7 +3,6 @@ import { CompetitionResponse, MessageProps } from "@/types";
 import { useState, useEffect } from "react";
 import RegisterToCompForm from "./RegisterToCompForm";
 import CalloutMessage from "./CalloutMessage";
-import ProblemGrid from "./ProblemGrid";
 import { Spinner } from "@radix-ui/themes";
 
 export function CompetitionList() {
@@ -34,11 +33,11 @@ export function CompetitionList() {
 
         if (competitions.length > 0) {
           setCompetitionList(competitions);
-          
+
           // Check registration status for each competition
           const statusMap: Record<number, boolean> = {};
           const checkingMap: Record<number, boolean> = {};
-          
+
           for (const comp of competitions) {
             checkingMap[comp.id] = true;
             try {
@@ -51,7 +50,7 @@ export function CompetitionList() {
               checkingMap[comp.id] = false;
             }
           }
-          
+
           setRegistrationStatus(statusMap);
           setCheckingRegistration(checkingMap);
         }
@@ -86,7 +85,7 @@ export function CompetitionList() {
                 <p>
                   <b>{comp.name}</b> - {comp.comp_date}
                 </p>
-                
+
                 {isChecking ? (
                   <div className="flex items-center py-2">
                     <Spinner size="2" />
@@ -94,7 +93,9 @@ export function CompetitionList() {
                   </div>
                 ) : isRegistered ? (
                   <>
-                    <p className="text-sm text-green-600 mb-2">✓ Du är registrerad för denna tävling</p>
+                    <p className="text-sm text-green-600 mb-2">
+                      ✓ Du är registrerad för denna tävling
+                    </p>
                   </>
                 ) : (
                   <RegisterToCompForm
