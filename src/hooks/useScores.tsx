@@ -25,7 +25,7 @@ export function useScores(competitionId: number) {
         if (!active) return;
 
         if (!user || !registration) {
-          setError("Kunde inte hämta användar- eller tävlingsdata.");
+          setError("Kunde inte hämta användar- eller tävlingsdata. Har du anmält dig?");
           return;
         }
 

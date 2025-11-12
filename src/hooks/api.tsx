@@ -88,7 +88,7 @@ export async function loginClimber(payload: LoginRequest): Promise<LoginResponse
 }
 
 export async function registerClimber(payload: RegistrationRequest) {
-  const response = await fetch(`${apiUrl}/climber/`, {
+  const response = await fetch(`${apiUrl}/auth/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

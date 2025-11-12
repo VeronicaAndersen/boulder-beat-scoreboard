@@ -63,7 +63,7 @@ export function LoginForm() {
 
           <Button
             type="submit"
-            className="w-full rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
+            className="w-full cursor-pointer rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
             disabled={!loginData.username || !loginData.password}
           >
             Logga in
@@ -71,7 +71,7 @@ export function LoginForm() {
 
           <Link
             to="/register"
-            className="text-sm text-center text-[#505654] underline justify-center flex"
+            className="w-fit text-sm text-center text-[#505654] underline flex justify-center mx-auto"
           >
             Registrera dig
           </Link>

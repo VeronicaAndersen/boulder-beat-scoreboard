@@ -63,18 +63,18 @@ export default function Profile() {
               <ProfilInfo />
             </Tabs.Content>
 
-            {/* {userInfo?.user_scope === "admin" && */}
+            {userInfo?.user_scope === "admin" &&
             <Tabs.Content value="admin">
               <SeasonList />
               <SeasonForm />
               <CompetitionForm />
             </Tabs.Content>
-            {/* } */}
+            } 
           </Box>
         </Tabs.Root>
       </div>
       <Button
-        className="absolute bg-[#505654] hover:bg-[#868f79] rounded-full px-4 py-2 mt-4 text-white top-4 right-4"
+        className="absolute cursor-pointer bg-[#505654] hover:bg-[#868f79] rounded-full px-4 py-2 mt-4 text-white top-4 right-4"
         onClick={handleLogout}
       >
         Logga ut {userInfo?.name}

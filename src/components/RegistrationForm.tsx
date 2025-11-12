@@ -76,13 +76,13 @@ export function RegistrationForm() {
 
           <Button
             type="submit"
-            className="w-full rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
+            className="w-full cursor-pointer rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
             disabled={isSubmitDisabled}
           >
             Registrera dig
           </Button>
 
-          <Link to="/" className="text-sm text-center text-[#505654] underline justify-center flex">
+          <Link to="/" className="w-fit text-sm text-center text-[#505654] underline flex justify-center mx-auto">
             Redan ett konto? Klicka här!
           </Link>
         </form>

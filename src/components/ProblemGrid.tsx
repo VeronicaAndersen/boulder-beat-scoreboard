@@ -3,6 +3,7 @@ import { ScoreBatchResponse } from "@/types";
 import { useScores } from "@/hooks/useScores";
 import CalloutMessage from "./CalloutMessage";
 import { useUpdateScoreBatch } from "@/hooks/useUpdateScoreBatchResult";
+import { Button } from "@radix-ui/themes";
 
 interface ProblemGridProps {
   competitionId: number;
@@ -99,14 +100,14 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                   </label>
 
                   <div className="flex items-center gap-2">
-                    <button
+                    <Button
                       onClick={() => dec(p, key)}
                       disabled={saving}
-                      className="w-8 h-8 rounded-full bg-[#505654] hover:bg-[#7b8579] text-white font-bold text-lg"
+                      className="w-8 h-8 rounded-full bg-[#505654] hover:bg-[#7b8579] text-white font-bold text-lg cursor-pointer"
                       aria-label={`Minska ${key}`}
                     >
                       −
-                    </button>
+                    </Button>
                     <input
                       id={`problem-${p.problem_no}-${key}`}
                       type="number"
@@ -114,14 +115,14 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                       onChange={(e) => updateField(p.problem_no, key, Number(e.target.value))}
                       className="w-14 text-center border border-gray-300 rounded-md px-2 py-1 text-sm"
                     />
-                    <button
+                    <Button
                       onClick={() => inc(p, key)}
                       disabled={saving}
-                      className="w-8 h-8 rounded-full bg-[#505654] hover:bg-[#7b8579] text-white font-bold text-lg"
+                      className="w-8 h-8 rounded-full bg-[#505654] hover:bg-[#7b8579] text-white font-bold text-lg cursor-pointer"
                       aria-label={`Öka ${key}`}
                     >
                       +
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -131,13 +132,13 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
       </div>
 
       <div className="flex justify-center">
-        <button
+        <Button
           onClick={() => saveAll(competitionId, gradeLevel!, problems)}
           disabled={saving}
-          className="bg-[#505654] hover:bg-[#7b8579] text-white px-6 py-2 rounded-full shadow font-medium"
+          className="bg-[#505654] hover:bg-[#7b8579] text-white px-6 py-2 rounded-full shadow font-medium cursor-pointer"
         >
           {saving ? "Sparar..." : "Spara alla försök"}
-        </button>
+        </Button>
       </div>
     </div>
   );

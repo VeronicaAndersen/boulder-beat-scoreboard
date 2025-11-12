@@ -126,7 +126,7 @@ export function CompetitionForm() {
         />
 
         <Button
-          className="mt-4 w-full rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
+          className="mt-4 w-full cursor-pointer rounded-full bg-[#505654] hover:bg-[#868f79] disabled:bg-[#505654]/50 disabled:cursor-not-allowed"
           type="submit"
         >
           Skapa tävling
