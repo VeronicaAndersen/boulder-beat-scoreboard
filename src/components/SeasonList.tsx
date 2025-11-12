@@ -29,7 +29,7 @@ export function SeasonList() {
   }, []);
 
   return (
-    <div className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
+    <div className="mb-6 h-fit flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-center mb-4">Säsonger</h2>
       {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
       {loading ? (

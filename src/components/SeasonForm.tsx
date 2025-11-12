@@ -32,7 +32,7 @@ export function SeasonForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md"
+      className="mb-6 h-fit flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md"
     >
       <h1 className="text-2xl font-semibold text-center mb-4">Skapa säsong</h1>
       {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}

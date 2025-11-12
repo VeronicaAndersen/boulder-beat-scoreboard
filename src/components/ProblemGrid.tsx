@@ -62,7 +62,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
       {saveMessage && <CalloutMessage message={saveMessage} color="blue" />}
       {saveError && <CalloutMessage message={saveError} color="red" />}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {problems.map((p) => {
           const orig = initialProblems.find((o) => o.problem_no === p.problem_no);
           const isChanged = orig && JSON.stringify(orig.score) !== JSON.stringify(p.score);

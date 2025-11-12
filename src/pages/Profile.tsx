@@ -45,9 +45,10 @@ export default function Profile() {
 
   return (
     <div className="h-fit flex flex-col items-center justify-center">
+      <img src="../../public/grepp.svg" alt="grepp logo" className="w-28 absolute top-8 left-5"/>
       <div className="flex flex-col items-center my-24 p-4 shadow-md rounded-lg bg-[#c6d1b8]/80 backdrop-blur">
         {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
-        <Tabs.Root defaultValue="active_competition" className="w-80">
+        <Tabs.Root defaultValue="active_competition">
           <Tabs.List color="cyan">
             <Tabs.Trigger value="competition">Tävlingar</Tabs.Trigger>
             <Tabs.Trigger value="active_competition">Aktiv Tävling</Tabs.Trigger>
@@ -65,9 +66,11 @@ export default function Profile() {
 
             {userInfo?.user_scope === "admin" &&
             <Tabs.Content value="admin">
-              <SeasonList />
-              <SeasonForm />
-              <CompetitionForm />
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <SeasonList />
+                <SeasonForm />
+                <CompetitionForm />
+              </div>
             </Tabs.Content>
             } 
           </Box>
