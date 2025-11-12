@@ -4,7 +4,11 @@ import { Button, Dialog, Flex, Select, Spinner } from "@radix-ui/themes";
 import { useState } from "react";
 import CalloutMessage from "./CalloutMessage";
 
-export default function RegisterToCompForm({ id, name, comp_date }: CompetitionResponse) {
+interface RegisterToCompFormProps extends CompetitionResponse {
+  onRegistrationSuccess?: () => void;
+}
+
+export default function RegisterToCompForm({ id, name, comp_date, onRegistrationSuccess }: RegisterToCompFormProps) {
   const [level, setLevel] = useState<number>(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -19,6 +23,10 @@ export default function RegisterToCompForm({ id, name, comp_date }: CompetitionR
         setErrorMessage(result.message);
       } else {
         setErrorMessage(null);
+        // Notify parent component to refresh registration status
+        if (onRegistrationSuccess) {
+          onRegistrationSuccess();
+        }
       }
     } catch (error) {
       setErrorMessage("Ett fel uppstod vid anmälan.");

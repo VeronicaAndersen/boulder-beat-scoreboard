@@ -88,15 +88,16 @@ export async function loginClimber(payload: LoginRequest): Promise<LoginResponse
 }
 
 export async function registerClimber(payload: RegistrationRequest) {
-  const response = await fetch(`${apiUrl}/auth/signup`, {
+  const response = await fetch(`${apiUrl}/climber`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-
+  
   if (response.status === 409) {
     return { success: false, message: "Detta namnet är redan taget." };
   }
+
   if (!response.ok) {
     return { success: false, message: "Något gick fel. Försök igen." };
   }
@@ -157,6 +158,14 @@ export async function getCompRegistrationInfo(
     method: "GET",
   });
 
+  if (!response || !response.ok) return null;
+  return await response.json();
+}
+
+export async function checkRegistration(competitionId: number): Promise<boolean | null> {
+  const response = await fetchWithAuth(`${apiUrl}/competition/${competitionId}/registration/check`, {
+    method: "GET",
+  });
   if (!response || !response.ok) return null;
   return await response.json();
 }

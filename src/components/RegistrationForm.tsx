@@ -27,6 +27,7 @@ export function RegistrationForm() {
 
     try {
       const result = await registerClimber(payload);
+
       if (!result.success) {
         setErrorMessage(result.message);
       } else {

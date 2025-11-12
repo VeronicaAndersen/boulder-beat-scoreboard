@@ -6,9 +6,9 @@ import { SeasonList } from "@/components/SeasonList";
 import { CompetitionForm } from "@/components/CompetitionForm";
 import { CompetitionList } from "@/components/CompetitionList";
 import { Box, Button, Tabs } from "@radix-ui/themes/components/index";
-import ProfilInfo from "@/components/ProfilInfo";
 import useGetUserInfo from "@/hooks/useGetUserInfo";
 import CalloutMessage from "@/components/CalloutMessage";
+import ActiveCompetition from "@/components/ActiveCompetition";
 
 export default function Profile() {
   const { setClimber, setToken } = useAuthStore();
@@ -47,10 +47,10 @@ export default function Profile() {
     <div className="h-fit flex flex-col items-center justify-center">
       <div className="flex flex-col items-center my-24 p-4 shadow-md rounded-lg bg-[#c6d1b8]/80 backdrop-blur">
         {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
-        <Tabs.Root defaultValue="profil" className="w-80">
+        <Tabs.Root defaultValue="active_competition" className="w-80">
           <Tabs.List color="cyan">
             <Tabs.Trigger value="competition">Tävlingar</Tabs.Trigger>
-            <Tabs.Trigger value="profil">Profil</Tabs.Trigger>
+            <Tabs.Trigger value="active_competition">Aktiv Tävling</Tabs.Trigger>
             {userInfo?.user_scope === "admin" && <Tabs.Trigger value="admin">Admin</Tabs.Trigger>}
           </Tabs.List>
 
@@ -59,8 +59,8 @@ export default function Profile() {
               <CompetitionList />
             </Tabs.Content>
 
-            <Tabs.Content value="profil">
-              <ProfilInfo />
+            <Tabs.Content value="active_competition">
+              <ActiveCompetition />
             </Tabs.Content>
 
             {userInfo?.user_scope === "admin" &&
