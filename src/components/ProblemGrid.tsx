@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from "react";
 import { Star, Medal } from "lucide-react";
 import { ScoreBatchResponse } from "@/types";
 import { useScores } from "@/hooks/useScores";
@@ -9,6 +10,7 @@ interface ProblemGridProps {
   competitionId: number;
 }
 //change gradeLevel to hex color codes for different levels
+const DEFAULT_GRADE_COLOR = "#D1D5DB";
 const gradeColors: Record<number, string> = {
   1: "#C084FC",
   2: "#F9A8D4",
@@ -19,33 +21,71 @@ const gradeColors: Record<number, string> = {
   7: "#000000",
 };
 
+const SCORE_FIELDS = ["attempts_total", "attempts_to_bonus", "attempts_to_top"] as const;
+const SCORE_FIELD_LABELS: Record<(typeof SCORE_FIELDS)[number], string> = {
+  attempts_total: "Totalt antal försök",
+  attempts_to_bonus: "Försök till bonus",
+  attempts_to_top: "Försök till topp",
+};
+
+const MIN_SCORE_VALUE = 0;
+
 export default function ProblemGrid({ competitionId }: ProblemGridProps) {
   const { problems, initialProblems, setProblems, isLoading, error, gradeLevel } =
     useScores(competitionId);
   const { saving, error: saveError, saveMessage, saveAll } = useUpdateScoreBatch();
 
-  const gradeColor = gradeLevel ? (gradeColors[gradeLevel] ?? "#D1D5DB") : "#D1D5DB";
-  const updateField = (
-    problemNo: number,
-    field: keyof ScoreBatchResponse["score"],
-    value: number
-  ) => {
-    setProblems((prev) =>
-      prev.map((p) =>
-        p.problem_no === problemNo
-          ? { ...p, score: { ...p.score, [field]: Math.max(0, value) } }
-          : p
-      )
-    );
-  };
+  const gradeColor = useMemo(() => {
+    if (!gradeLevel) {
+      return DEFAULT_GRADE_COLOR;
+    }
+    return gradeColors[gradeLevel] ?? DEFAULT_GRADE_COLOR;
+  }, [gradeLevel]);
 
-  const inc = (p: ScoreBatchResponse, key: keyof ScoreBatchResponse["score"]) => {
-    updateField(p.problem_no, key, typeof p.score[key] === "number" ? p.score[key] + 1 : 1);
-  };
+  const gradeLabel = gradeLevel ? `Gradnivå: ${gradeLevel}` : "Gradnivå: ej tilldelad";
 
-  const dec = (p: ScoreBatchResponse, key: keyof ScoreBatchResponse["score"]) => {
-    updateField(p.problem_no, key, Math.max(0, Number(p.score[key]) - 1));
-  };
+  const initialScoreMap = useMemo(() => {
+    const map = new Map<number, ScoreBatchResponse["score"]>();
+    initialProblems.forEach((problem) => {
+      map.set(problem.problem_no, problem.score);
+    });
+    return map;
+  }, [initialProblems]);
+
+  const sanitizeValue = useCallback((value: number) => {
+    if (Number.isNaN(value) || value < MIN_SCORE_VALUE) {
+      return MIN_SCORE_VALUE;
+    }
+    return Math.floor(value);
+  }, []);
+
+  const updateField = useCallback(
+    (problemNo: number, field: keyof ScoreBatchResponse["score"], value: number) => {
+      const safeValue = sanitizeValue(value);
+      setProblems((prev) =>
+        prev.map((p) =>
+          p.problem_no === problemNo ? { ...p, score: { ...p.score, [field]: safeValue } } : p
+        )
+      );
+    },
+    [sanitizeValue, setProblems]
+  );
+
+  const inc = useCallback(
+    (problem: ScoreBatchResponse, key: keyof ScoreBatchResponse["score"]) => {
+      const current = typeof problem.score[key] === "number" ? Number(problem.score[key]) : 0;
+      updateField(problem.problem_no, key, current + 1);
+    },
+    [updateField]
+  );
+
+  const dec = useCallback(
+    (problem: ScoreBatchResponse, key: keyof ScoreBatchResponse["score"]) => {
+      const current = typeof problem.score[key] === "number" ? Number(problem.score[key]) : 0;
+      updateField(problem.problem_no, key, current - 1);
+    },
+    [updateField]
+  );
 
   if (isLoading) {
     return (
@@ -55,21 +95,31 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
       </div>
     );
   }
-  if (error) return <p className="text-red-600">{error}</p>;
+  if (error) return <CalloutMessage message={error} color="red" />;
 
   return (
     <div className="space-y-4">
       {saveMessage && <CalloutMessage message={saveMessage} color="blue" />}
       {saveError && <CalloutMessage message={saveError} color="red" />}
 
+      {!problems.length && (
+        <p className="text-center text-sm text-gray-500">
+          Inga problem att visa ännu. Försök uppdatera sidan eller välj en annan tävling.
+        </p>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        {problems.map((p) => {
-          const orig = initialProblems.find((o) => o.problem_no === p.problem_no);
-          const isChanged = orig && JSON.stringify(orig.score) !== JSON.stringify(p.score);
+        {problems.map((problem) => {
+          const originalScore = initialScoreMap.get(problem.problem_no);
+          const isChanged = SCORE_FIELDS.some((field) => {
+            const currentValue = Number(problem.score[field]) || 0;
+            const originalValue = Number(originalScore?.[field]) || 0;
+            return currentValue !== originalValue;
+          });
 
           return (
             <div
-              key={p.problem_no}
+              key={problem.problem_no}
               className={`relative p-4 rounded-xl shadow-sm flex flex-col border transition-all
                 ${isChanged ? "border-yellow-500 bg-yellow-50" : "border-gray-300 bg-white"}
               `}
@@ -82,49 +132,59 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
 
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold text-gray-800">Problem {p.problem_no}</h3>
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Problem {problem.problem_no}
+                  </h3>
                   <span
                     className="w-4 h-4 rounded-full border border-gray-300"
                     style={{ backgroundColor: gradeColor }}
-                    title={`Gradnivå: ${gradeLevel}`}
+                    title={gradeLabel}
                   />
                 </div>
-                <div className="flex gap-1">
-                  {p.score.attempts_to_bonus > 0 && <Medal className="w-5 h-5 text-yellow-500" />}
-                  {p.score.attempts_to_top > 0 && <Star className="w-5 h-5 text-green-500" />}
+                <div className="flex gap-1 p-6">
+                  {problem.score.attempts_to_bonus > 0 && (
+                    <Star className="w-5 h-5 text-[#c6d1b8]/80" aria-hidden />
+                  )}
+                  {problem.score.attempts_to_top > 0 && (
+                    <Medal className="w-5 h-5 text-amber-300" aria-hidden />
+                  )}
                 </div>
               </div>
 
-              {(["attempts_total", "attempts_to_bonus", "attempts_to_top"] as const).map((key) => (
+              {SCORE_FIELDS.map((key) => (
                 <div key={key} className="mb-3">
                   <label
-                    htmlFor={`problem-${p.problem_no}-${key}`}
+                    htmlFor={`problem-${problem.problem_no}-${key}`}
                     className="block text-sm text-[#7b8579] font-medium capitalize mb-1"
                   >
-                    {key.replace(/_/g, " ")}
+                    {SCORE_FIELD_LABELS[key]}
                   </label>
 
                   <div className="flex items-center gap-2">
                     <Button
-                      onClick={() => dec(p, key)}
+                      onClick={() => dec(problem, key)}
                       disabled={saving}
                       className="w-8 h-8 rounded-full bg-[#505654] hover:bg-[#7b8579] text-white font-bold text-lg cursor-pointer"
-                      aria-label={`Minska ${key}`}
+                      aria-label={`Minska ${SCORE_FIELD_LABELS[key]}`}
                     >
                       −
                     </Button>
                     <input
-                      id={`problem-${p.problem_no}-${key}`}
+                      id={`problem-${problem.problem_no}-${key}`}
                       type="number"
-                      value={String(p.score[key])}
-                      onChange={(e) => updateField(p.problem_no, key, Number(e.target.value))}
+                      min={MIN_SCORE_VALUE}
+                      inputMode="numeric"
+                      value={String(sanitizeValue(Number(problem.score[key])))}
+                      onChange={(event) =>
+                        updateField(problem.problem_no, key, Number(event.target.value))
+                      }
                       className="w-14 text-center border border-gray-300 rounded-md px-2 py-1 text-sm"
                     />
                     <Button
-                      onClick={() => inc(p, key)}
+                      onClick={() => inc(problem, key)}
                       disabled={saving}
                       className="w-8 h-8 rounded-full bg-[#505654] hover:bg-[#7b8579] text-white font-bold text-lg cursor-pointer"
-                      aria-label={`Öka ${key}`}
+                      aria-label={`Öka ${SCORE_FIELD_LABELS[key]}`}
                     >
                       +
                     </Button>
@@ -138,11 +198,11 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
 
       <div className="flex justify-center">
         <Button
-          onClick={() => saveAll(competitionId, gradeLevel!, problems)}
-          disabled={saving}
-          className="bg-[#505654] hover:bg-[#7b8579] text-white px-6 py-2 rounded-full shadow font-medium cursor-pointer"
+          onClick={() => gradeLevel && saveAll(competitionId, gradeLevel, problems)}
+          disabled={saving || !gradeLevel}
+          className="bg-[#505654] hover:bg-[#7b8579] text-white px-6 py-2 rounded-full shadow font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {saving ? "Sparar..." : "Spara alla försök"}
+          {saving ? "Sparar..." : gradeLevel ? "Spara alla försök" : "Välj gradnivå för att spara"}
         </Button>
       </div>
     </div>

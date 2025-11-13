@@ -45,7 +45,7 @@ export default function Profile() {
 
   return (
     <div className="h-fit flex flex-col items-center justify-center">
-      <img src="../../public/grepp.svg" alt="grepp logo" className="w-28 absolute top-8 left-5" />
+      <img src="./grepp.svg" alt="grepp logo" className="w-28 absolute top-8 left-5" />
       <div className="flex flex-col items-center my-24 p-4 shadow-md rounded-lg bg-[#c6d1b8]/80 backdrop-blur">
         {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
         <Tabs.Root defaultValue="active_competition">
