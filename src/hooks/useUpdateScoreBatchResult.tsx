@@ -38,15 +38,15 @@ export function useUpdateScoreBatch(): UseUpdateScoreBatchResult {
           attempts_to_top: p.score.attempts_to_top,
         })),
       };
-
+      
       const result = await updateScoreBatch({ comp_id: competitionId, level }, payload);
 
       if (!result) {
-        setError("Failed to save scores.");
+        setError("Misslyckades att spara.");
         return false;
       }
 
-      setSaveMessage("Scores saved successfully.");
+      setSaveMessage("Poäng sparades.");
       return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";

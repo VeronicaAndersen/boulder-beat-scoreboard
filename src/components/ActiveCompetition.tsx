@@ -7,63 +7,61 @@ import { Spinner } from "@radix-ui/themes";
 
 export default function ActiveCompetition() {
   const [activeCompetition, setActiveCompetition] = useState<CompetitionResponse | null>(null);
+  const [regInfo, setRegInfo] = useState<RegisterToCompResponse | null>(null);
   const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchActiveCompetition = async () => {
+    async function fetchActiveCompetition() {
       setLoading(true);
       try {
-        // Get all competitions
         const competitions = await getCompetitions();
 
-        if (competitions.length === 0) {
+        if (!Array.isArray(competitions) || competitions.length === 0) {
+          setActiveCompetition(null);
+          setRegInfo(null);
           setLoading(false);
           return;
         }
 
-        // Check registration status for each competition
-        const registeredCompetitions: Array<{
-          competition: CompetitionResponse;
-          registrationInfo: RegisterToCompResponse;
-        }> = [];
+        // Only pick competitions with registration, prefer latest (higher comp_date)
+        let best: {competition: CompetitionResponse, registrationInfo: RegisterToCompResponse} | null = null;
 
         for (const comp of competitions) {
           try {
             const isRegistered = await checkRegistration(comp.id);
             if (isRegistered === true) {
-              // Get registration info to know the level
               const regInfo = await getCompRegistrationInfo(comp.id);
               if (regInfo) {
-                registeredCompetitions.push({
-                  competition: comp,
-                  registrationInfo: regInfo,
-                });
+                if (
+                  !best ||
+                  new Date(comp.comp_date).getTime() > new Date(best.competition.comp_date).getTime()
+                ) {
+                  best = { competition: comp, registrationInfo: regInfo };
+                }
               }
             }
           } catch (error) {
-            console.error(`Error checking registration for competition ${comp.id}:`, error);
+            console.error(`Error for competition ${comp.id}:`, error);
           }
         }
 
-        if (registeredCompetitions.length > 0) {
-          // Sort by comp_date (latest first) and get the most recent one
-          const sorted = registeredCompetitions.sort((a, b) => {
-            const dateA = new Date(a.competition.comp_date).getTime();
-            const dateB = new Date(b.competition.comp_date).getTime();
-            return dateB - dateA; // Latest first
-          });
-
-          const latest = sorted[0];
-          setActiveCompetition(latest.competition);
+        if (best) {
+          setActiveCompetition(best.competition);
+          setRegInfo(best.registrationInfo);
+        } else {
+          setActiveCompetition(null);
+          setRegInfo(null);
         }
       } catch (error) {
         console.error("Error fetching active competition:", error);
         setMessageInfo({ message: "Ett fel uppstod vid hämtning av aktiv tävling.", color: "red" });
+        setActiveCompetition(null);
+        setRegInfo(null);
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     fetchActiveCompetition();
   }, []);
@@ -103,6 +101,11 @@ export default function ActiveCompetition() {
         {activeCompetition.description && (
           <p className="text-gray-600 mb-1">
             <strong>Beskrivning:</strong> {activeCompetition.description}
+          </p>
+        )}
+        {regInfo?.level && (
+          <p className="text-gray-600 mb-1">
+            <strong>Din tävlingsnivå:</strong> {String(regInfo.level)}
           </p>
         )}
       </div>

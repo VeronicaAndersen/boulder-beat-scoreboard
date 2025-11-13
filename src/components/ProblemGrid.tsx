@@ -149,6 +149,10 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                     <Medal className="w-5 h-5 text-amber-300" aria-hidden />
                   )}
                 </div>
+                <p>
+                  B{problem.score.attempts_to_bonus}T
+                  {problem.score.attempts_to_top}
+                </p>
               </div>
 
               {SCORE_FIELDS.map((key) => (

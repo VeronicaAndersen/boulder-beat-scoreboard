@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import CalloutMessage from "./CalloutMessage";
 import { Spinner } from "@radix-ui/themes";
 
-export function SeasonList() {
+interface SeasonListProps {
+  refreshKey?: number;
+}
+
+export function SeasonList({ refreshKey }: SeasonListProps = {}) {
   const [seasonList, setSeasonList] = useState<SeasonResponse[]>([]);
   const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -26,7 +30,7 @@ export function SeasonList() {
     };
 
     fetchSeasons();
-  }, []);
+  }, [refreshKey]);
 
   return (
     <div className="mb-6 h-fit flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">

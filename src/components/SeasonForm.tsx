@@ -4,7 +4,11 @@ import { Button, Spinner } from "@radix-ui/themes";
 import { useState } from "react";
 import CalloutMessage from "./CalloutMessage";
 
-export function SeasonForm() {
+interface SeasonFormProps {
+  onSeasonCreated?: () => void;
+}
+
+export function SeasonForm({ onSeasonCreated }: SeasonFormProps = {}) {
   const [seasonData, setSeasonData] = useState<SeasonRequest>({ name: "", year: "" });
   const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -20,7 +24,8 @@ export function SeasonForm() {
         return;
       }
       setMessageInfo({ message: "Säsong skapad!", color: "blue" });
-      setSeasonData({ name: seasonData.name, year: seasonData.year });
+      setSeasonData({ name: "", year: "" });
+      onSeasonCreated?.();
     } catch (error) {
       console.error("Error creating season:", error);
       setMessageInfo({ message: "Ett fel uppstod vid skapandet av säsongen.", color: "red" });

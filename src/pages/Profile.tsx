@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/store/auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SeasonForm } from "@/components/SeasonForm";
 import { SeasonList } from "@/components/SeasonList";
@@ -13,6 +13,7 @@ import ActiveCompetition from "@/components/ActiveCompetition";
 export default function Profile() {
   const { setClimber, setToken } = useAuthStore();
   const navigate = useNavigate();
+  const [seasonRefreshKey, setSeasonRefreshKey] = useState(0);
 
   const { userInfo, messageInfo } = useGetUserInfo();
 
@@ -67,8 +68,8 @@ export default function Profile() {
             {userInfo?.user_scope === "admin" && (
               <Tabs.Content value="admin">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                  <SeasonList />
-                  <SeasonForm />
+                  <SeasonList refreshKey={seasonRefreshKey} />
+                  <SeasonForm onSeasonCreated={() => setSeasonRefreshKey((prev) => prev + 1)} />
                   <CompetitionForm />
                 </div>
               </Tabs.Content>
