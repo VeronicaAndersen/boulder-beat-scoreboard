@@ -7,7 +7,6 @@ import { Spinner } from "@radix-ui/themes";
 
 export default function ActiveCompetition() {
   const [activeCompetition, setActiveCompetition] = useState<CompetitionResponse | null>(null);
-  const [regInfo, setRegInfo] = useState<RegisterToCompResponse | null>(null);
   const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -19,7 +18,6 @@ export default function ActiveCompetition() {
 
         if (!Array.isArray(competitions) || competitions.length === 0) {
           setActiveCompetition(null);
-          setRegInfo(null);
           setLoading(false);
           return;
         }
@@ -52,16 +50,13 @@ export default function ActiveCompetition() {
 
         if (best) {
           setActiveCompetition(best.competition);
-          setRegInfo(best.registrationInfo);
         } else {
           setActiveCompetition(null);
-          setRegInfo(null);
         }
       } catch (error) {
         console.error("Error fetching active competition:", error);
         setMessageInfo({ message: "Ett fel uppstod vid hämtning av aktiv tävling.", color: "red" });
         setActiveCompetition(null);
-        setRegInfo(null);
       } finally {
         setLoading(false);
       }
@@ -105,11 +100,6 @@ export default function ActiveCompetition() {
         {activeCompetition.description && (
           <p className="text-gray-600 mb-1">
             <strong>Beskrivning:</strong> {activeCompetition.description}
-          </p>
-        )}
-        {regInfo?.level && (
-          <p className="text-gray-600 mb-1">
-            <strong>Din tävlingsnivå:</strong> {String(regInfo.level)}
           </p>
         )}
       </div>
