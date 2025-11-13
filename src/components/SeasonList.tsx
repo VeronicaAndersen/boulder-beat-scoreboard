@@ -1,41 +1,18 @@
-import { getSeasons } from "@/hooks/api";
-import { MessageProps, SeasonResponse } from "@/types";
-import { useEffect, useState } from "react";
 import CalloutMessage from "./CalloutMessage";
 import { Spinner } from "@radix-ui/themes";
+import { useSeasons } from "@/hooks/useSeasons";
 
 interface SeasonListProps {
   refreshKey?: number;
 }
 
 export function SeasonList({ refreshKey }: SeasonListProps = {}) {
-  const [seasonList, setSeasonList] = useState<SeasonResponse[]>([]);
-  const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchSeasons = async () => {
-      setLoading(true);
-      try {
-        const seasons = await getSeasons({});
-        if (seasons) {
-          setSeasonList(seasons);
-        }
-      } catch (error) {
-        console.error("Error fetching seasons:", error);
-        setMessageInfo({ message: "Ett fel uppstod vid hämtning av säsonger.", color: "red" });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSeasons();
-  }, [refreshKey]);
+  const { seasons: seasonList, loading, error } = useSeasons(refreshKey);
 
   return (
     <div className="mb-6 h-fit flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-center mb-4">Säsonger</h2>
-      {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
+      {error && <CalloutMessage message={error} color="red" />}
       {loading ? (
         <div className="flex items-center justify-center py-8">
           <Spinner size="3" />

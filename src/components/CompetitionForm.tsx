@@ -1,46 +1,38 @@
-import { createCompetition } from "@/hooks/api";
-import { CompetitionRequest, MessageProps } from "@/types";
+import { CompetitionRequest } from "@/types";
 import { Button, Spinner } from "@radix-ui/themes";
-import { useState } from "react";
 import CalloutMessage from "./CalloutMessage";
+import { useCreateCompetition } from "@/hooks/useCreateCompetition";
+import { useForm } from "@/hooks/useForm";
+
+const initialCompetitionData: CompetitionRequest = {
+  name: "",
+  description: "",
+  comp_type: "",
+  comp_date: "",
+  season_id: 0,
+  round_no: 0,
+};
 
 export function CompetitionForm() {
-  const [competitionData, setCompetitionData] = useState<CompetitionRequest>({
-    name: "",
-    description: "",
-    comp_type: "",
-    comp_date: "",
-    season_id: 0,
-    round_no: 0,
-  });
-  const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const {
+    values: competitionData,
+    handleChange,
+    reset: resetForm,
+  } = useForm(initialCompetitionData);
+  const {
+    loading,
+    error,
+    success,
+    createCompetition,
+    reset: resetMutation,
+  } = useCreateCompetition();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      const result = await createCompetition(competitionData);
-      if (!result) {
-        console.error("Failed to create competition:", result.statusText);
-        setMessageInfo({ message: "Ett fel uppstod vid skapandet av tävlingen.", color: "red" });
-        return;
-      }
-      setMessageInfo({ message: "Tävling skapad!", color: "blue" });
-      // Reset form after submission
-      setCompetitionData({
-        name: "",
-        description: "",
-        comp_type: "",
-        comp_date: "",
-        season_id: 0,
-        round_no: 0,
-      });
-    } catch (error) {
-      console.error("Error creating competition:", error);
-      setMessageInfo({ message: "Ett fel uppstod vid skapandet av tävlingen.", color: "red" });
-    } finally {
-      setLoading(false);
+    const success = await createCompetition(competitionData);
+    if (success) {
+      resetForm();
+      resetMutation();
     }
   };
 
@@ -51,7 +43,8 @@ export function CompetitionForm() {
         className="mb-6 h-fit flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md"
       >
         <h1 className="text-2xl font-semibold text-center mb-4">Skapa tävling</h1>
-        {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
+        {error && <CalloutMessage message={error} color="red" />}
+        {success && <CalloutMessage message="Tävling skapad!" color="blue" />}
         <label htmlFor="competition_name" className="block mb-1">
           Namn
         </label>
@@ -60,7 +53,7 @@ export function CompetitionForm() {
           type="text"
           placeholder="Namn"
           value={competitionData.name}
-          onChange={(e) => setCompetitionData({ ...competitionData, name: e.target.value })}
+          onChange={handleChange("name")}
           className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
@@ -73,7 +66,7 @@ export function CompetitionForm() {
           type="text"
           placeholder="Beskrivning"
           value={competitionData.description}
-          onChange={(e) => setCompetitionData({ ...competitionData, description: e.target.value })}
+          onChange={handleChange("description")}
           className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
@@ -86,7 +79,7 @@ export function CompetitionForm() {
           type="text"
           placeholder="Typ"
           value={competitionData.comp_type}
-          onChange={(e) => setCompetitionData({ ...competitionData, comp_type: e.target.value })}
+          onChange={handleChange("comp_type")}
           className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
@@ -99,7 +92,7 @@ export function CompetitionForm() {
           type="date"
           placeholder="Datum"
           value={competitionData.comp_date}
-          onChange={(e) => setCompetitionData({ ...competitionData, comp_date: e.target.value })}
+          onChange={handleChange("comp_date")}
           className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
@@ -112,9 +105,7 @@ export function CompetitionForm() {
           type="number"
           placeholder="Säsong ID"
           value={competitionData.season_id}
-          onChange={(e) =>
-            setCompetitionData({ ...competitionData, season_id: Number(e.target.value) })
-          }
+          onChange={handleChange("season_id")}
           className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
@@ -127,9 +118,7 @@ export function CompetitionForm() {
           type="number"
           placeholder="Omgångsnummer"
           value={competitionData.round_no}
-          onChange={(e) =>
-            setCompetitionData({ ...competitionData, round_no: Number(e.target.value) })
-          }
+          onChange={handleChange("round_no")}
           className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />

@@ -25,7 +25,10 @@ export default function ActiveCompetition() {
         }
 
         // Only pick competitions with registration, prefer latest (higher comp_date)
-        let best: {competition: CompetitionResponse, registrationInfo: RegisterToCompResponse} | null = null;
+        let best: {
+          competition: CompetitionResponse;
+          registrationInfo: RegisterToCompResponse;
+        } | null = null;
 
         for (const comp of competitions) {
           try {
@@ -35,7 +38,8 @@ export default function ActiveCompetition() {
               if (regInfo) {
                 if (
                   !best ||
-                  new Date(comp.comp_date).getTime() > new Date(best.competition.comp_date).getTime()
+                  new Date(comp.comp_date).getTime() >
+                    new Date(best.competition.comp_date).getTime()
                 ) {
                   best = { competition: comp, registrationInfo: regInfo };
                 }

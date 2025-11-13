@@ -1,36 +1,26 @@
-import { createSeason } from "@/hooks/api";
-import { MessageProps, SeasonRequest } from "@/types";
+import { SeasonRequest } from "@/types";
 import { Button, Spinner } from "@radix-ui/themes";
-import { useState } from "react";
 import CalloutMessage from "./CalloutMessage";
+import { useCreateSeason } from "@/hooks/useCreateSeason";
+import { useForm } from "@/hooks/useForm";
 
 interface SeasonFormProps {
   onSeasonCreated?: () => void;
 }
 
+const initialSeasonData: SeasonRequest = { name: "", year: "" };
+
 export function SeasonForm({ onSeasonCreated }: SeasonFormProps = {}) {
-  const [seasonData, setSeasonData] = useState<SeasonRequest>({ name: "", year: "" });
-  const [messageInfo, setMessageInfo] = useState<MessageProps | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { values: seasonData, handleChange, reset: resetForm } = useForm(initialSeasonData);
+  const { loading, error, success, createSeason, reset: resetMutation } = useCreateSeason();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      const result = await createSeason(seasonData);
-      if (!result) {
-        console.error("Failed to create season:", result.statusText);
-        setMessageInfo({ message: "Ett fel uppstod vid skapandet av säsongen.", color: "red" });
-        return;
-      }
-      setMessageInfo({ message: "Säsong skapad!", color: "blue" });
-      setSeasonData({ name: "", year: "" });
+    const success = await createSeason(seasonData);
+    if (success) {
+      resetForm();
+      resetMutation();
       onSeasonCreated?.();
-    } catch (error) {
-      console.error("Error creating season:", error);
-      setMessageInfo({ message: "Ett fel uppstod vid skapandet av säsongen.", color: "red" });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -40,7 +30,8 @@ export function SeasonForm({ onSeasonCreated }: SeasonFormProps = {}) {
       className="mb-6 h-fit flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md"
     >
       <h1 className="text-2xl font-semibold text-center mb-4">Skapa säsong</h1>
-      {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
+      {error && <CalloutMessage message={error} color="red" />}
+      {success && <CalloutMessage message="Säsong skapad!" color="blue" />}
       <label htmlFor="season_name" className="block mb-1">
         Namn
       </label>
@@ -49,7 +40,7 @@ export function SeasonForm({ onSeasonCreated }: SeasonFormProps = {}) {
         type="text"
         placeholder="Namn"
         value={seasonData.name}
-        onChange={(e) => setSeasonData({ ...seasonData, name: e.target.value })}
+        onChange={handleChange("name")}
         className="w-full p-2 rounded-lg border text-base"
         disabled={loading}
       />
@@ -62,7 +53,7 @@ export function SeasonForm({ onSeasonCreated }: SeasonFormProps = {}) {
         type="number"
         placeholder="År"
         value={seasonData.year}
-        onChange={(e) => setSeasonData({ ...seasonData, year: e.target.value })}
+        onChange={handleChange("year")}
         className="w-full p-2 rounded-lg border text-base"
         disabled={loading}
       />

@@ -38,7 +38,7 @@ export function useUpdateScoreBatch(): UseUpdateScoreBatchResult {
           attempts_to_top: p.score.attempts_to_top,
         })),
       };
-      
+
       const result = await updateScoreBatch({ comp_id: competitionId, level }, payload);
 
       if (!result) {

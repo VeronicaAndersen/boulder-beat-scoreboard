@@ -150,8 +150,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                   )}
                 </div>
                 <p>
-                  B{problem.score.attempts_to_bonus}T
-                  {problem.score.attempts_to_top}
+                  B{problem.score.attempts_to_bonus}T{problem.score.attempts_to_top}
                 </p>
               </div>
 
