@@ -61,7 +61,7 @@ export function CompetitionForm() {
           placeholder="Namn"
           value={competitionData.name}
           onChange={(e) => setCompetitionData({ ...competitionData, name: e.target.value })}
-          className="w-full p-2 rounded-lg border"
+          className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
 
@@ -74,7 +74,7 @@ export function CompetitionForm() {
           placeholder="Beskrivning"
           value={competitionData.description}
           onChange={(e) => setCompetitionData({ ...competitionData, description: e.target.value })}
-          className="w-full p-2 rounded-lg border"
+          className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
 
@@ -87,7 +87,7 @@ export function CompetitionForm() {
           placeholder="Typ"
           value={competitionData.comp_type}
           onChange={(e) => setCompetitionData({ ...competitionData, comp_type: e.target.value })}
-          className="w-full p-2 rounded-lg border"
+          className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
 
@@ -100,7 +100,7 @@ export function CompetitionForm() {
           placeholder="Datum"
           value={competitionData.comp_date}
           onChange={(e) => setCompetitionData({ ...competitionData, comp_date: e.target.value })}
-          className="w-full p-2 rounded-lg border"
+          className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
 
@@ -115,7 +115,7 @@ export function CompetitionForm() {
           onChange={(e) =>
             setCompetitionData({ ...competitionData, season_id: Number(e.target.value) })
           }
-          className="w-full p-2 rounded-lg border"
+          className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
 
@@ -130,7 +130,7 @@ export function CompetitionForm() {
           onChange={(e) =>
             setCompetitionData({ ...competitionData, round_no: Number(e.target.value) })
           }
-          className="w-full p-2 rounded-lg border"
+          className="w-full p-2 rounded-lg border text-base"
           disabled={loading}
         />
 

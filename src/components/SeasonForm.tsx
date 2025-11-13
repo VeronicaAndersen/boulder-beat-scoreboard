@@ -45,7 +45,7 @@ export function SeasonForm() {
         placeholder="Namn"
         value={seasonData.name}
         onChange={(e) => setSeasonData({ ...seasonData, name: e.target.value })}
-        className="w-full p-2 rounded-lg border"
+        className="w-full p-2 rounded-lg border text-base"
         disabled={loading}
       />
 
@@ -58,7 +58,7 @@ export function SeasonForm() {
         placeholder="År"
         value={seasonData.year}
         onChange={(e) => setSeasonData({ ...seasonData, year: e.target.value })}
-        className="w-full p-2 rounded-lg border"
+        className="w-full p-2 rounded-lg border text-base"
         disabled={loading}
       />
 

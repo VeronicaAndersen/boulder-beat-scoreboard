@@ -55,13 +55,13 @@ export function RegistrationForm() {
             <TextField.Root
               id="name"
               type="text"
-              placeholder="Enter your name"
+              placeholder="Namn"
               value={RegisterClimberData.name}
               onChange={(e) =>
                 setRegisterClimberData({ ...RegisterClimberData, name: e.target.value })
               }
               required
-              className="w-full"
+              className="w-full text-base"
               disabled={loading}
             />
           </div>
@@ -71,13 +71,13 @@ export function RegistrationForm() {
             <TextField.Root
               id="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder="Lösenord"
               value={RegisterClimberData.password}
               onChange={(e) =>
                 setRegisterClimberData({ ...RegisterClimberData, password: e.target.value })
               }
               required
-              className="w-full"
+              className="w-full text-base"
               disabled={loading}
             />
             {RegisterClimberData.password.length > 0 && RegisterClimberData.password.length < 6 && (

@@ -55,7 +55,7 @@ export function LoginForm() {
               value={loginData.username}
               onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
               required
-              className="w-full"
+              className="w-full text-base"
               disabled={loading}
             />
           </div>
@@ -69,7 +69,7 @@ export function LoginForm() {
               value={loginData.password}
               onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
               required
-              className="w-full"
+              className="w-full text-base"
               disabled={loading}
             />
           </div>

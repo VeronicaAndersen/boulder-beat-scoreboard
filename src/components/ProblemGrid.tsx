@@ -121,7 +121,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
             <div
               key={problem.problem_no}
               className={`relative p-4 rounded-xl shadow-sm flex flex-col border transition-all
-                ${isChanged ? "border-yellow-500 bg-yellow-50" : "border-gray-300 bg-white"}
+                ${isChanged ? "border-yellow-500" : "border-gray-300"}
               `}
             >
               {isChanged && (
@@ -152,7 +152,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
               </div>
 
               {SCORE_FIELDS.map((key) => (
-                <div key={key} className="mb-3">
+                <div key={key} className="flex flex-row justify-between m-2">
                   <label
                     htmlFor={`problem-${problem.problem_no}-${key}`}
                     className="block text-sm text-[#7b8579] font-medium capitalize mb-1"
@@ -178,7 +178,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                       onChange={(event) =>
                         updateField(problem.problem_no, key, Number(event.target.value))
                       }
-                      className="w-14 text-center border border-gray-300 rounded-md px-2 py-1 text-sm"
+                      className="w-14 text-center border border-gray-300 rounded-full px-2 py-1 text-base"
                     />
                     <Button
                       onClick={() => inc(problem, key)}
