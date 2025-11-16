@@ -3,6 +3,7 @@ import {
   UrlParams,
   LoginRequest,
   LoginResponse,
+  SignupResponse,
   RegistrationRequest,
   ScoreRequest,
   SeasonRequest,
@@ -143,6 +144,60 @@ export async function loginClimber(payload: LoginRequest): Promise<LoginResponse
       throw error;
     }
     console.error(`Nätverksfel vid inloggning:`, error);
+    throw new Error(`Misslyckades att ansluta till servern`);
+  }
+}
+
+export async function signupClimber(payload: RegistrationRequest): Promise<SignupResponse | null> {
+  try {
+    const response = await fetch(`${apiUrl}/auth/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.status === 422) {
+      try {
+        const errorData = await response.json();
+        const detail = errorData.detail;
+        if (Array.isArray(detail) && detail.length > 0) {
+          const firstError = detail[0];
+          const message = firstError.msg || "Valideringsfel";
+          throw new Error(message);
+        }
+        throw new Error("Valideringsfel");
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error;
+        }
+        throw new Error("Valideringsfel");
+      }
+    }
+
+    if (!response.ok) {
+      console.error(`Misslyckades att registrera (${response.status})`);
+      throw new Error(`Misslyckades att registrera (${response.status})`);
+    }
+
+    try {
+      const data = await response.json();
+      // Save tokens automatically on successful signup
+      if (data.access_token && data.refresh_token) {
+        saveTokens({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+      }
+      return data;
+    } catch (error) {
+      console.error(`Fel vid parsning av registreringssvar:`, error);
+      throw new Error(`Ogiltigt svar från servern`);
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    console.error(`Nätverksfel vid registrering:`, error);
     throw new Error(`Misslyckades att ansluta till servern`);
   }
 }

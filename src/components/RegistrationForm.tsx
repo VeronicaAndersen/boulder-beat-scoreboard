@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { RegistrationRequest } from "@/types";
-import { registerClimber } from "@/hooks/api";
+import { signupClimber } from "@/hooks/api";
 import { Link, useNavigate } from "react-router-dom";
 import * as Label from "@radix-ui/react-label";
 import { Card, Button, TextField, Spinner } from "@radix-ui/themes";
@@ -26,13 +26,14 @@ export function RegistrationForm() {
     };
 
     try {
-      const result = await registerClimber(payload);
-
-      if (!result.success) {
-        setErrorMessage(result.message);
-      } else {
-        navigate("/");
+      const result = await signupClimber(payload);
+      if (result) {
+        // Tokens are automatically saved in signupClimber
+        navigate("/profile");
       }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Misslyckades att registrera. Försök igen.";
+      setErrorMessage(message);
     } finally {
       setLoading(false);
     }

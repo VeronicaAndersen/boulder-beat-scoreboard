@@ -10,6 +10,18 @@ export type LoginResponse = {
   token_type: string;
 };
 
+export type SignupResponse = {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  climber: {
+    id: number;
+    name: string;
+    user_scope: string;
+    created_at: string;
+  };
+};
+
 //Climber
 export type RegistrationRequest = {
   name: string;
