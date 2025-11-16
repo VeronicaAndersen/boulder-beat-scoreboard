@@ -73,7 +73,9 @@ export function RegistrationForm() {
               autoComplete="new_password"
               placeholder="Lösenord"
               value={registerClimberData.password}
-              onChange={(e) => setRegisterClimberData({ ...registerClimberData, password: e.target.value })}
+              onChange={(e) =>
+                setRegisterClimberData({ ...registerClimberData, password: e.target.value })
+              }
               required
               className="w-full text-base"
               disabled={loading}
