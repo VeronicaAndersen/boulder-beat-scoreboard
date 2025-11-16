@@ -166,8 +166,8 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                 </span>
               )}
 
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
+              <div className="flex justify-between items-center py-6">
+                <div className="flex items-center gap-2 ">
                   <h3 className="text-lg font-semibold text-gray-800">
                     Problem {problem.problem_no}
                   </h3>
@@ -180,7 +180,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                 <p className="text-sm text-[#7b8579]">
                   B{problem.score.attempts_to_bonus}T{problem.score.attempts_to_top}
                 </p>
-                <div className="flex gap-1 p-6">
+                <div className="flex gap-1">
                   {problem.score.attempts_to_bonus > 0 && (
                     <Star className="w-5 h-5 text-[#c6d1b8]/80" aria-hidden />
                   )}

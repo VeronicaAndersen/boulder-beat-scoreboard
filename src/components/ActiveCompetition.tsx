@@ -67,7 +67,7 @@ export default function ActiveCompetition() {
 
   if (loading) {
     return (
-      <div className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
+      <div className="flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold text-center mb-4">Aktiv Tävling</h2>
         <div className="flex items-center justify-center py-8">
           <Spinner size="3" />
@@ -79,7 +79,7 @@ export default function ActiveCompetition() {
 
   if (!activeCompetition) {
     return (
-      <div className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
+      <div className="flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold text-center mb-4">Aktiv Tävling</h2>
         {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
         <p className="text-center text-gray-600">Du är inte registrerad för någon tävling ännu.</p>
@@ -88,7 +88,7 @@ export default function ActiveCompetition() {
   }
 
   return (
-    <div className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
+    <div className="flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-center mb-4">Aktiv Tävling</h2>
       {messageInfo && <CalloutMessage message={messageInfo.message} color={messageInfo.color} />}
 
