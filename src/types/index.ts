@@ -162,5 +162,6 @@ export type MessageProps = {
     | "iris"
     | "indigo"
     | "blue"
-    | "sky";
+    | "sky"
+    | "green";
 };

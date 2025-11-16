@@ -44,7 +44,7 @@ export function CompetitionForm() {
       >
         <h1 className="text-2xl font-semibold text-center mb-4">Skapa tävling</h1>
         {error && <CalloutMessage message={error} color="red" />}
-        {success && <CalloutMessage message="Tävling skapad!" color="blue" />}
+        {success && <CalloutMessage message="Tävling skapad!" color="green" />}
         <label htmlFor="competition_name" className="block mb-1">
           Namn
         </label>

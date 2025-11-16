@@ -107,7 +107,7 @@ export default function RegisterToCompForm({
           </Flex>
         </Dialog.Content>
       </Dialog.Root>
-      {errorMessage && <CalloutMessage message={errorMessage} color="blue" />}
+      {errorMessage && <CalloutMessage message={errorMessage} color="red" />}
     </>
   );
 }

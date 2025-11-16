@@ -234,21 +234,21 @@ export async function getScoresBatch(urlParams: UrlParams) {
 
 export async function updateScore(urlParams: UrlParams, payload: ScoreRequest) {
   const { comp_id, level, problem_no } = urlParams;
-  try {
-    const response = await fetch(
-      `${apiUrl}/competitions/${comp_id}/level/${level}/problems/${problem_no}/score`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
-    if (!response.ok) throw new Error(`Failed to update score (${response.status})`);
-    return await response.json();
-  } catch (error) {
-    console.error("Error update score:", error);
-    return null;
+  const response = await fetchWithAuth(
+    `${apiUrl}/competitions/${comp_id}/level/${level}/problems/${problem_no}/score`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (response.status === 422) throw new Error(`Något ser fel ut med poängen. Vänligen se över!`);
+  if (!response.ok) {
+    console.error(`Misslyckades att uppdatera poäng (${response.status})`);
+    throw new Error(`Misslyckades att uppdatera poäng (${response.status})`);
   }
+  return await response.json();
 }
 
 export async function updateScoreBatch(
@@ -256,25 +256,19 @@ export async function updateScoreBatch(
   payload: ScoreBatch
 ): Promise<ProblemScoreBulkResult[] | null> {
   const { comp_id, level } = urlParams;
-
-  try {
-    const response = await fetchWithAuth(
-      `${apiUrl}/competitions/${comp_id}/level/${level}/scores/batch`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    if (!response || !response.ok) {
-      console.error("Failed response", response);
-      return null;
+  const response = await fetchWithAuth(
+    `${apiUrl}/competitions/${comp_id}/level/${level}/scores/batch`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     }
+  );
 
-    return await response.json();
-  } catch (error) {
-    console.error("Error updating score batch:", error);
+  if (!response || !response.ok) {
+    console.error("Failed response", response);
     return null;
   }
+
+  return await response.json();
 }

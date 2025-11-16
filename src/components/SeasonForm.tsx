@@ -31,7 +31,7 @@ export function SeasonForm({ onSeasonCreated }: SeasonFormProps = {}) {
     >
       <h1 className="text-2xl font-semibold text-center mb-4">Skapa säsong</h1>
       {error && <CalloutMessage message={error} color="red" />}
-      {success && <CalloutMessage message="Säsong skapad!" color="blue" />}
+      {success && <CalloutMessage message="Säsong skapad!" color="green" />}
       <label htmlFor="season_name" className="block mb-1">
         Namn
       </label>

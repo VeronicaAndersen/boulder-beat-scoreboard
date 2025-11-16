@@ -60,6 +60,7 @@ export function useScores(competitionId: number) {
     problems,
     initialProblems,
     setProblems,
+    setInitialProblems,
     isLoading,
     error,
   };

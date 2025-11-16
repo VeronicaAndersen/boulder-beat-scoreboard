@@ -1,10 +1,10 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { Star, Medal } from "lucide-react";
 import { ScoreBatchResponse } from "@/types";
 import { useScores } from "@/hooks/useScores";
 import CalloutMessage from "./CalloutMessage";
-import { useUpdateScoreBatch } from "@/hooks/useUpdateScoreBatchResult";
 import { Button, Spinner } from "@radix-ui/themes";
+import { useUpdateScore } from "@/hooks/useUpdateScore";
 
 interface ProblemGridProps {
   competitionId: number;
@@ -31,9 +31,39 @@ const SCORE_FIELD_LABELS: Record<(typeof SCORE_FIELDS)[number], string> = {
 const MIN_SCORE_VALUE = 0;
 
 export default function ProblemGrid({ competitionId }: ProblemGridProps) {
-  const { problems, initialProblems, setProblems, isLoading, error, gradeLevel } =
-    useScores(competitionId);
-  const { saving, error: saveError, saveMessage, saveAll } = useUpdateScoreBatch();
+  const {
+    problems,
+    initialProblems,
+    setProblems,
+    setInitialProblems,
+    isLoading,
+    error,
+    gradeLevel,
+  } = useScores(competitionId);
+
+  const { saving, error: saveError, saveMessage, saveAll } = useUpdateScore();
+  const [savedProblemNo, setSavedProblemNo] = useState<number | null>(null);
+  const [errorProblemNo, setErrorProblemNo] = useState<number | null>(null);
+
+  // Clear the saved problem message after 3 seconds
+  useEffect(() => {
+    if (savedProblemNo !== null) {
+      const timer = setTimeout(() => {
+        setSavedProblemNo(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [savedProblemNo]);
+
+  // Clear the error problem message after 5 seconds
+  useEffect(() => {
+    if (errorProblemNo !== null) {
+      const timer = setTimeout(() => {
+        setErrorProblemNo(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorProblemNo]);
 
   const gradeColor = useMemo(() => {
     if (!gradeLevel) {
@@ -99,9 +129,6 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
 
   return (
     <div className="space-y-4">
-      {saveMessage && <CalloutMessage message={saveMessage} color="blue" />}
-      {saveError && <CalloutMessage message={saveError} color="red" />}
-
       {!problems.length && (
         <p className="text-center text-sm text-gray-500">
           Inga problem att visa ännu. Försök uppdatera sidan eller välj en annan tävling.
@@ -117,6 +144,9 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
             return currentValue !== originalValue;
           });
 
+          const isSaved = savedProblemNo === problem.problem_no && saveMessage;
+          const hasError = errorProblemNo === problem.problem_no && saveError;
+
           return (
             <div
               key={problem.problem_no}
@@ -124,23 +154,32 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                 ${isChanged ? "border-yellow-500" : "border-gray-300"}
               `}
             >
-              {isChanged && (
-                <span className="absolute top-2 right-2 text-xs font-medium text-yellow-700 bg-yellow-100 border border-yellow-300 rounded-md px-2 py-0.5">
+              {isSaved && <CalloutMessage message={saveMessage} color="green" />}
+              {hasError && <CalloutMessage message={saveError} color="red" />}
+
+              {isChanged && !isSaved && (
+                <span
+                  className={`absolute top-2 right-2 text-xs font-medium text-yellow-700 
+                      bg-yellow-100 border border-yellow-300 rounded-md px-2 py-0.5`}
+                >
                   Ej sparad
                 </span>
               )}
 
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-semibold text-gray-800">
                     Problem {problem.problem_no}
                   </h3>
                   <span
-                    className="w-4 h-4 rounded-full border border-gray-300"
+                    className="w-5 h-5 rounded-full border border-gray-300"
                     style={{ backgroundColor: gradeColor }}
                     title={gradeLabel}
                   />
                 </div>
+                <p className="text-sm text-[#7b8579]">
+                  B{problem.score.attempts_to_bonus}T{problem.score.attempts_to_top}
+                </p>
                 <div className="flex gap-1 p-6">
                   {problem.score.attempts_to_bonus > 0 && (
                     <Star className="w-5 h-5 text-[#c6d1b8]/80" aria-hidden />
@@ -149,9 +188,6 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                     <Medal className="w-5 h-5 text-amber-300" aria-hidden />
                   )}
                 </div>
-                <p>
-                  B{problem.score.attempts_to_bonus}T{problem.score.attempts_to_top}
-                </p>
               </div>
 
               {SCORE_FIELDS.map((key) => (
@@ -167,7 +203,8 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                     <Button
                       onClick={() => dec(problem, key)}
                       disabled={saving}
-                      className="w-8 h-8 rounded-full bg-[#505654] hover:bg-[#7b8579] text-white font-bold text-lg cursor-pointer"
+                      className={`w-8 h-8 rounded-full bg-[#505654] hover:bg-[#7b8579] 
+                                text-white font-bold text-lg cursor-pointer`}
                       aria-label={`Minska ${SCORE_FIELD_LABELS[key]}`}
                     >
                       −
@@ -186,7 +223,8 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                     <Button
                       onClick={() => inc(problem, key)}
                       disabled={saving}
-                      className="w-8 h-8 rounded-full bg-[#505654] hover:bg-[#7b8579] text-white font-bold text-lg cursor-pointer"
+                      className={`w-8 h-8 rounded-full bg-[#505654] hover:bg-[#7b8579] 
+                                text-white font-bold text-lg cursor-pointer`}
                       aria-label={`Öka ${SCORE_FIELD_LABELS[key]}`}
                     >
                       +
@@ -194,19 +232,57 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                   </div>
                 </div>
               ))}
+              <div className="flex justify-center">
+                <Button
+                  onClick={async () => {
+                    if (!gradeLevel) return;
+                    const success = await saveAll(
+                      competitionId,
+                      gradeLevel,
+                      problem.problem_no,
+                      problem.score
+                    );
+                    if (success) {
+                      // Track which problem was saved to show message over it
+                      setSavedProblemNo(problem.problem_no);
+                      setErrorProblemNo(null); // Clear any previous error
+                      // Update initialProblems to reflect the saved state, so isChanged will be false
+                      setInitialProblems((prev) =>
+                        prev.map((p) =>
+                          p.problem_no === problem.problem_no
+                            ? {
+                                ...p,
+                                score: {
+                                  attempts_total: problem.score.attempts_total,
+                                  got_bonus: problem.score.got_bonus,
+                                  got_top: problem.score.got_top,
+                                  attempts_to_bonus: problem.score.attempts_to_bonus,
+                                  attempts_to_top: problem.score.attempts_to_top,
+                                },
+                              }
+                            : p
+                        )
+                      );
+                    } else {
+                      // Track which problem had an error
+                      setErrorProblemNo(problem.problem_no);
+                      setSavedProblemNo(null); // Clear any previous success message
+                    }
+                  }}
+                  disabled={saving || !gradeLevel}
+                  className={`bg-[#505654] hover:bg-[#7b8579] text-white px-6 py-2 mt-4 rounded-full 
+                    shadow font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed w-full`}
+                >
+                  {saving
+                    ? "Sparar..."
+                    : gradeLevel
+                      ? "Spara försök"
+                      : "Välj gradnivå för att spara"}
+                </Button>
+              </div>
             </div>
           );
         })}
-      </div>
-
-      <div className="flex justify-center">
-        <Button
-          onClick={() => gradeLevel && saveAll(competitionId, gradeLevel, problems)}
-          disabled={saving || !gradeLevel}
-          className="bg-[#505654] hover:bg-[#7b8579] text-white px-6 py-2 rounded-full shadow font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {saving ? "Sparar..." : gradeLevel ? "Spara alla försök" : "Välj gradnivå för att spara"}
-        </Button>
       </div>
     </div>
   );
