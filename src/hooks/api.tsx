@@ -128,22 +128,37 @@ export async function loginClimber(payload: LoginRequest): Promise<LoginResponse
       body: JSON.stringify(payload),
     });
 
+    if (response.status === 422) {
+      try {
+        const errorData = await response.json();
+        const detail = errorData.detail;
+        if (Array.isArray(detail) && detail.length > 0) {
+          const firstError = detail[0];
+          const message = firstError.msg || "Valideringsfel";
+          throw new Error(message);
+        }
+        throw new Error("Valideringsfel");
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error;
+        }
+        throw new Error("Valideringsfel");
+      }
+    }
+
     if (!response.ok) {
       console.error(`Misslyckades att logga in (${response.status})`);
       throw new Error(`Misslyckades att logga in (${response.status})`);
     }
 
-    try {
-      return await response.json();
-    } catch (error) {
-      console.error(`Fel vid parsning av inloggningssvar:`, error);
-      throw new Error(`Ogiltigt svar från servern`);
-    }
+    const data = await response.json();
+    await setTokenToLocalStorage(data);
+    return data;
   } catch (error) {
     if (error instanceof Error) {
       throw error;
     }
-    console.error(`Nätverksfel vid inloggning:`, error);
+    console.error(`Nätverksfel vid registrering:`, error);
     throw new Error(`Misslyckades att ansluta till servern`);
   }
 }
@@ -179,26 +194,31 @@ export async function signupClimber(payload: RegistrationRequest): Promise<Signu
       throw new Error(`Misslyckades att registrera (${response.status})`);
     }
 
-    try {
-      const data = await response.json();
-      // Save tokens automatically on successful signup
-      if (data.access_token && data.refresh_token) {
-        saveTokens({
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-        });
-      }
-      return data;
-    } catch (error) {
-      console.error(`Fel vid parsning av registreringssvar:`, error);
-      throw new Error(`Ogiltigt svar från servern`);
-    }
+    const data = await response.json();
+    await setTokenToLocalStorage(data);
+    return data;
   } catch (error) {
     if (error instanceof Error) {
       throw error;
     }
     console.error(`Nätverksfel vid registrering:`, error);
     throw new Error(`Misslyckades att ansluta till servern`);
+  }
+}
+
+async function setTokenToLocalStorage(data: { access_token: string; refresh_token: string }) {
+  try {
+    // Save tokens automatically on successful signup
+    if (data.access_token && data.refresh_token) {
+      saveTokens({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      });
+    }
+    return data;
+  } catch (error) {
+    console.error(`Fel vid parsning av registreringssvar:`, error);
+    throw new Error(`Ogiltigt svar från servern`);
   }
 }
 
@@ -262,7 +282,9 @@ export async function getClimberById(climberId: number) {
     });
 
     if (!response.ok) {
-      console.error(`Misslyckades att hämta klätter info via id: ${climberId} (${response.status})`);
+      console.error(
+        `Misslyckades att hämta klätter info via id: ${climberId} (${response.status})`
+      );
       throw new Error(
         `Misslyckades att hämta klätter info via id: ${climberId} (${response.status})`
       );
@@ -464,7 +486,9 @@ export async function getSeasons(payload: SeasonRequest): Promise<SeasonResponse
     if (payload.name) params.append("name", payload.name);
     if (payload.year) params.append("year", payload.year.toString());
 
-    const response = await fetchWithAuth(`${apiUrl}/season?${params.toString()}`, { method: "GET" });
+    const response = await fetchWithAuth(`${apiUrl}/season?${params.toString()}`, {
+      method: "GET",
+    });
 
     if (!response || !response.ok) {
       console.error(`Misslyckades att hämta säsong (${response?.status || "unknown"})`);
@@ -491,8 +515,12 @@ export async function getSeasonById(seasonId: number): Promise<SeasonResponse | 
     const response = await fetchWithAuth(`${apiUrl}/season/${seasonId}`, { method: "GET" });
 
     if (!response || !response.ok) {
-      console.error(`Misslyckades att hämta säsong via id: ${seasonId} (${response?.status || "unknown"})`);
-      throw new Error(`Misslyckades att hämta säsong via id: ${seasonId} (${response?.status || "unknown"})`);
+      console.error(
+        `Misslyckades att hämta säsong via id: ${seasonId} (${response?.status || "unknown"})`
+      );
+      throw new Error(
+        `Misslyckades att hämta säsong via id: ${seasonId} (${response?.status || "unknown"})`
+      );
     }
 
     try {
@@ -545,8 +573,12 @@ export async function deleteSeasonById(seasonId: number): Promise<SeasonResponse
     const response = await fetchWithAuth(`${apiUrl}/season/${seasonId}`, { method: "DELETE" });
 
     if (!response || !response.ok) {
-      console.error(`Misslyckades att radera säsong via id: ${seasonId} (${response?.status || "unknown"})`);
-      throw new Error(`Misslyckades att radera säsong via id: ${seasonId} (${response?.status || "unknown"})`);
+      console.error(
+        `Misslyckades att radera säsong via id: ${seasonId} (${response?.status || "unknown"})`
+      );
+      throw new Error(
+        `Misslyckades att radera säsong via id: ${seasonId} (${response?.status || "unknown"})`
+      );
     }
 
     // 204 No Content responses have no body, so return null

@@ -11,7 +11,7 @@ export function RegistrationForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [RegisterClimberData, setRegisterClimberData] = useState<RegistrationRequest>({
+  const [registerClimberData, setRegisterClimberData] = useState<RegistrationRequest>({
     name: "",
     password: "",
   });
@@ -20,19 +20,16 @@ export function RegistrationForm() {
     e.preventDefault();
     setLoading(true);
     setErrorMessage(null);
-    const payload: RegistrationRequest = {
-      name: RegisterClimberData.name,
-      password: RegisterClimberData.password,
-    };
 
     try {
-      const result = await signupClimber(payload);
+      const result = await signupClimber(registerClimberData);
       if (result) {
         // Tokens are automatically saved in signupClimber
         navigate("/profile");
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Misslyckades att registrera. Försök igen.";
+      const message =
+        error instanceof Error ? error.message : "Misslyckades att registrera. Försök igen.";
       setErrorMessage(message);
     } finally {
       setLoading(false);
@@ -40,9 +37,9 @@ export function RegistrationForm() {
   };
 
   const isSubmitDisabled =
-    !RegisterClimberData.name ||
-    !RegisterClimberData.password ||
-    RegisterClimberData.password.length < 6 ||
+    !registerClimberData.name ||
+    !registerClimberData.password ||
+    registerClimberData.password.length < 6 ||
     loading;
 
   return (
@@ -52,14 +49,15 @@ export function RegistrationForm() {
         <form onSubmit={handleRegister} className="space-y-6">
           <h2 className="text-2xl font-semibold text-center mb-4">Registrera dig</h2>
           <div className="space-y-2">
-            <Label.Root htmlFor="name">Namn</Label.Root>
+            <Label.Root htmlFor="username">Namn</Label.Root>
             <TextField.Root
-              id="name"
+              id="username"
               type="text"
+              autoComplete="username"
               placeholder="Namn"
-              value={RegisterClimberData.name}
+              value={registerClimberData.name}
               onChange={(e) =>
-                setRegisterClimberData({ ...RegisterClimberData, name: e.target.value })
+                setRegisterClimberData({ ...registerClimberData, name: e.target.value })
               }
               required
               className="w-full text-base"
@@ -68,20 +66,19 @@ export function RegistrationForm() {
           </div>
 
           <div className="space-y-2">
-            <Label.Root htmlFor="password">Lösenord</Label.Root>
+            <Label.Root htmlFor="new_password">Lösenord</Label.Root>
             <TextField.Root
-              id="password"
+              id="new_password"
               type="password"
+              autoComplete="new_password"
               placeholder="Lösenord"
-              value={RegisterClimberData.password}
-              onChange={(e) =>
-                setRegisterClimberData({ ...RegisterClimberData, password: e.target.value })
-              }
+              value={registerClimberData.password}
+              onChange={(e) => setRegisterClimberData({ ...registerClimberData, password: e.target.value })}
               required
               className="w-full text-base"
               disabled={loading}
             />
-            {RegisterClimberData.password.length > 0 && RegisterClimberData.password.length < 6 && (
+            {registerClimberData.password.length > 0 && registerClimberData.password.length < 6 && (
               <p className="text-red-500 text-xs italic">Måste innehålla minst sex tecken.</p>
             )}
           </div>

@@ -41,7 +41,7 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
     try {
       const payload: SeasonRequest = {
         name: editValues.name.trim() || undefined,
-        year: editValues.year.trim() || undefined
+        year: editValues.year.trim() || undefined,
       };
 
       await updateSeasonById(seasonId, payload);
@@ -49,8 +49,7 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
       setEditValues({ name: "", year: "" });
       await refetch();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Misslyckades att uppdatera säsong.";
+      const message = err instanceof Error ? err.message : "Misslyckades att uppdatera säsong.";
       setRowError({ id: seasonId, message });
     } finally {
       setSaving(null);
@@ -66,8 +65,7 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
       await deleteSeasonById(seasonId);
       await refetch();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Misslyckades att radera säsong.";
+      const message = err instanceof Error ? err.message : "Misslyckades att radera säsong.";
       setRowError({ id: seasonId, message });
     } finally {
       setDeleting(null);
@@ -109,9 +107,7 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
                         <input
                           type="text"
                           value={editValues.name}
-                          onChange={(e) =>
-                            setEditValues({ ...editValues, name: e.target.value })
-                          }
+                          onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
                           className="w-full px-2 py-1 border border-gray-300 rounded"
                           disabled={isSaving}
                         />
@@ -119,7 +115,7 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
                         <span className="text-gray-800">{season.name}</span>
                       )}
                     </td>
-               
+
                     <td className="p-2">
                       <div className="flex items-center justify-center gap-2">
                         {isEditing ? (
@@ -130,11 +126,7 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
                               className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded cursor-pointer disabled:opacity-50"
                               size="1"
                             >
-                              {isSaving ? (
-                                <Spinner size="1" />
-                              ) : (
-                                <Check className="w-4 h-4" />
-                              )}
+                              {isSaving ? <Spinner size="1" /> : <Check className="w-4 h-4" />}
                             </Button>
                             <Button
                               onClick={cancelEdit}
@@ -149,7 +141,7 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
                           <>
                             <Button
                               onClick={() => startEdit(season)}
-                              disabled={true}//TODO: fix update {isSaving || isDeleting || editingId !== null}
+                              disabled={true} //TODO: fix update {isSaving || isDeleting || editingId !== null}
                               className="bg-[#505654] hover:bg-[#868f79] text-white px-3 py-1 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                               size="1"
                             >

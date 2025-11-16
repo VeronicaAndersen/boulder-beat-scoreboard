@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { LoginRequest } from "@/types";
-import { useAuthStore } from "@/store/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { loginClimber } from "@/hooks/api";
 import { Button, Card, TextField, Spinner } from "@radix-ui/themes";
@@ -9,9 +8,10 @@ import CalloutMessage from "./CalloutMessage";
 
 export function LoginForm() {
   const navigate = useNavigate();
-  const [loginData, setLoginData] = useState<LoginRequest>({ username: "", password: "" });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [loginData, setLoginData] = useState<LoginRequest>({ username: "", password: "" });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,22 +19,14 @@ export function LoginForm() {
     setErrorMessage(null);
 
     try {
-      const { access_token, refresh_token } = await loginClimber(loginData);
-      if (!access_token || !refresh_token) {
-        setErrorMessage("Inloggning misslyckades. Kontrollera dina uppgifter och försök igen.");
-        setLoading(false);
-        return;
+      const result = await loginClimber(loginData);
+      if (result) {
+        navigate("/profile");
       }
-      useAuthStore.getState().setToken(access_token);
-
-      localStorage.setItem(
-        "tokens",
-        JSON.stringify({ access_token: access_token, refresh_token: refresh_token })
-      );
-      navigate("/profile");
-    } catch (err) {
-      setErrorMessage("Något gick fel vid inloggning. Försök igen.");
-      console.error(err);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Misslyckades att loggan in. Försök igen.";
+      setErrorMessage(message);
     } finally {
       setLoading(false);
     }
@@ -51,6 +43,7 @@ export function LoginForm() {
             <TextField.Root
               id="name"
               type="text"
+              autoComplete="username"
               placeholder="Användarnamn"
               value={loginData.username}
               onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
@@ -65,6 +58,7 @@ export function LoginForm() {
             <TextField.Root
               id="password"
               type="password"
+              autoComplete="current-password"
               placeholder="Lösenord"
               value={loginData.password}
               onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
