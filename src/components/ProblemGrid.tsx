@@ -212,6 +212,7 @@ export default function ProblemGrid({ competitionId }: ProblemGridProps) {
                     <input
                       id={`problem-${problem.problem_no}-${key}`}
                       type="number"
+                      disabled={saving}
                       min={MIN_SCORE_VALUE}
                       inputMode="numeric"
                       value={String(sanitizeValue(Number(problem.score[key])))}
