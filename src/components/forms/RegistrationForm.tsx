@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { RegistrationRequest } from "@/types";
-import { signupClimber } from "@/hooks/api";
+import { signupClimber } from "@/services/api";
 import { Link, useNavigate } from "react-router-dom";
 import * as Label from "@radix-ui/react-label";
 import { Card, Button, TextField, Spinner } from "@radix-ui/themes";
-import CalloutMessage from "./CalloutMessage";
+import CalloutMessage from "../user_feedback/CalloutMessage";
 
 export function RegistrationForm() {
   const navigate = useNavigate();

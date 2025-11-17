@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createSeason } from "@/hooks/api";
+import { createSeason } from "@/services/api";
 import { SeasonRequest } from "@/types";
 
 interface UseCreateSeasonResult {

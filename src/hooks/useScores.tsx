@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMyInfo, getCompRegistrationInfo, getScoresBatch } from "@/hooks/api";
+import { getMyInfo, getCompRegistrationInfo, getScoresBatch } from "@/services/api";
 import { ScoreBatchResponse } from "@/types";
 
 export function useScores(competitionId: number) {

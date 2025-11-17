@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { getCompetitions, checkRegistration } from "@/hooks/api";
+import { getCompetitions, checkRegistration } from "@/services/api";
 import { CompetitionResponse } from "@/types";
 
 interface UseCompetitionsResult {

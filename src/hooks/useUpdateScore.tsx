@@ -1,6 +1,6 @@
 // updateScore
 import { useState } from "react";
-import { updateScore } from "@/hooks/api";
+import { updateScore } from "@/services/api";
 import { ScoreRequest } from "@/types";
 
 type UseUpdateScore = {

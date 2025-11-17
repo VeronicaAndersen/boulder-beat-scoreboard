@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createCompetition } from "@/hooks/api";
+import { createCompetition } from "@/services/api";
 import { CompetitionRequest } from "@/types";
 
 interface UseCreateCompetitionResult {

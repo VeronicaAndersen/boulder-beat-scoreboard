@@ -1,5 +1,5 @@
-import RegisterToCompForm from "./RegisterToCompForm";
-import CalloutMessage from "./CalloutMessage";
+import RegisterToCompForm from "./forms/RegisterToCompForm";
+import CalloutMessage from "./user_feedback/CalloutMessage";
 import { Spinner } from "@radix-ui/themes";
 import { useCompetitions } from "@/hooks/useCompetitions";
 

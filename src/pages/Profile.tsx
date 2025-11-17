@@ -1,13 +1,13 @@
 import { useAuthStore } from "@/store/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SeasonForm } from "@/components/SeasonForm";
+import { SeasonForm } from "@/components/forms/SeasonForm";
 import { SeasonList } from "@/components/SeasonList";
-import { CompetitionForm } from "@/components/CompetitionForm";
+import { CompetitionForm } from "@/components/forms/CompetitionForm";
 import { CompetitionList } from "@/components/CompetitionList";
 import { Box, Button, Tabs } from "@radix-ui/themes/components/index";
 import useGetUserInfo from "@/hooks/useGetUserInfo";
-import CalloutMessage from "@/components/CalloutMessage";
+import CalloutMessage from "@/components/user_feedback/CalloutMessage";
 import ActiveCompetition from "@/components/ActiveCompetition";
 
 export default function Profile() {

@@ -1,4 +1,4 @@
-import CalloutMessage from "./CalloutMessage";
+import CalloutMessage from "./user_feedback/CalloutMessage";
 import useGetUserInfo from "@/hooks/useGetUserInfo";
 import { Spinner } from "@radix-ui/themes";
 

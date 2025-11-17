@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState, useEffect } from "react";
 import { Star, Medal } from "lucide-react";
 import { ScoreBatchResponse } from "@/types";
 import { useScores } from "@/hooks/useScores";
-import CalloutMessage from "./CalloutMessage";
+import CalloutMessage from "./user_feedback/CalloutMessage";
 import { Button, Spinner } from "@radix-ui/themes";
 import { useUpdateScore } from "@/hooks/useUpdateScore";
 

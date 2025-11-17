@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { updateScoreBatch } from "@/hooks/api";
+import { updateScoreBatch } from "@/services/api";
 import { ScoreBatchResponse, ScoreBatch } from "@/types";
 
 type UseUpdateScoreBatchResult = {

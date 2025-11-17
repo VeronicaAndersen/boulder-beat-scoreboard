@@ -1,8 +1,8 @@
-import { registerClimberToCompetition } from "@/hooks/api";
+import { registerClimberToCompetition } from "@/services/api";
 import { CompetitionResponse } from "@/types";
 import { Button, Dialog, Flex, Select, Spinner } from "@radix-ui/themes";
 import { useState } from "react";
-import CalloutMessage from "./CalloutMessage";
+import CalloutMessage from "../user_feedback/CalloutMessage";
 
 interface RegisterToCompFormProps extends CompetitionResponse {
   onRegistrationSuccess?: () => void;

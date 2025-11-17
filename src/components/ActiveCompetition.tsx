@@ -1,7 +1,7 @@
-import { checkRegistration, getCompetitions, getCompRegistrationInfo } from "@/hooks/api";
+import { checkRegistration, getCompetitions, getCompRegistrationInfo } from "@/services/api";
 import { CompetitionResponse, MessageProps, RegisterToCompResponse } from "@/types";
 import { useState, useEffect } from "react";
-import CalloutMessage from "./CalloutMessage";
+import CalloutMessage from "./user_feedback/CalloutMessage";
 import ProblemGrid from "./ProblemGrid";
 import { Spinner } from "@radix-ui/themes";
 

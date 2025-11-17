@@ -1,6 +1,6 @@
 import { MyInfoResponse, MessageProps } from "@/types";
 import { useState, useEffect } from "react";
-import { getMyInfo } from "./api";
+import { getMyInfo } from "../services/api";
 
 export default function useGetUserInfo() {
   const [userInfo, setUserInfo] = useState<MyInfoResponse | null>(null);

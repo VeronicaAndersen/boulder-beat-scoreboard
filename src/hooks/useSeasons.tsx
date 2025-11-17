@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { getSeasons } from "@/hooks/api";
+import { getSeasons } from "@/services/api";
 import { SeasonResponse } from "@/types";
 
 interface UseSeasonsResult {

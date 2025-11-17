@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCompRegistrationInfo, getMyInfo, getScoresBatch } from "@/hooks/api";
+import { getCompRegistrationInfo, getMyInfo, getScoresBatch } from "@/services/api";
 import { ScoreBatchResponse } from "@/types";
 
 interface UseCompetitionScoresResult {

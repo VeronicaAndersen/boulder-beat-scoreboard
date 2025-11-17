@@ -1,8 +1,8 @@
 import { useState } from "react";
-import CalloutMessage from "./CalloutMessage";
+import CalloutMessage from "./user_feedback/CalloutMessage";
 import { Spinner, Button } from "@radix-ui/themes";
 import { useSeasons } from "@/hooks/useSeasons";
-import { updateSeasonById, deleteSeasonById } from "@/hooks/api";
+import { updateSeasonById, deleteSeasonById } from "@/services/api";
 import { SeasonResponse, SeasonRequest } from "@/types";
 import { Pencil, Trash2, Check, X } from "lucide-react";
 
