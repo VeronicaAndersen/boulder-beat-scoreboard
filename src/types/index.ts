@@ -22,6 +22,11 @@ export type SignupResponse = {
   };
 };
 
+export type SignupRequest = {
+  name: string;
+  password: string;
+};
+
 //Climber
 export type RegistrationRequest = {
   name: string;
