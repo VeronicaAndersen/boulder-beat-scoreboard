@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { SeasonForm } from "@/components/forms/SeasonForm";
 import { SeasonList } from "@/components/SeasonList";
 import { CompetitionForm } from "@/components/forms/CompetitionForm";
-import { CompetitionList } from "@/components/CompetitionList";
+import { CompetitionList, ActiveCompetition } from "@/components/CompetitionsPage";
 import { Box, Button, Tabs } from "@radix-ui/themes/components/index";
 import useGetUserInfo from "@/hooks/useGetUserInfo";
 import CalloutMessage from "@/components/user_feedback/CalloutMessage";
-import ActiveCompetition from "@/components/ActiveCompetition";
+import ProfilInfo from "@/components/ProfilInfo";
 
 export default function Profile() {
   const { setClimber, setToken } = useAuthStore();
@@ -53,6 +53,7 @@ export default function Profile() {
           <Tabs.List color="cyan">
             <Tabs.Trigger value="competition">Tävlingar</Tabs.Trigger>
             <Tabs.Trigger value="active_competition">Aktiv Tävling</Tabs.Trigger>
+            <Tabs.Trigger value="profile">Profil</Tabs.Trigger>
             {userInfo?.user_scope === "admin" && <Tabs.Trigger value="admin">Admin</Tabs.Trigger>}
           </Tabs.List>
 
@@ -65,10 +66,15 @@ export default function Profile() {
               <ActiveCompetition />
             </Tabs.Content>
 
+            <Tabs.Content value="profile">
+              <ProfilInfo />
+            </Tabs.Content>
+
             {userInfo?.user_scope === "admin" && (
               <Tabs.Content value="admin">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 gap-2">
                   <SeasonList refreshKey={seasonRefreshKey} />
+                  <CompetitionList />
                   <SeasonForm onSeasonCreated={() => setSeasonRefreshKey((prev) => prev + 1)} />
                   <CompetitionForm />
                 </div>

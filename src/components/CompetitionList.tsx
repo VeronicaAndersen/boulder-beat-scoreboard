@@ -1,68 +1,230 @@
-import RegisterToCompForm from "./forms/RegisterToCompForm";
+import { useState, useMemo } from "react";
 import CalloutMessage from "./user_feedback/CalloutMessage";
-import { Spinner } from "@radix-ui/themes";
+import { Spinner, Button } from "@radix-ui/themes";
 import { useCompetitions } from "@/hooks/useCompetitions";
+import { updateCompetitionById, deleteCompetitionById } from "@/services/api";
+import { CompetitionResponse, CompetitionRequest } from "@/types";
+import { Pencil, Trash2, Check, X } from "lucide-react";
 
 export function CompetitionList() {
-  const {
-    competitions: competitionList,
-    loading,
-    error,
-    registrationStatus,
-    checkingRegistration,
-    refreshRegistrationStatus,
-  } = useCompetitions();
+  const { competitions: compList, loading, error, refetch } = useCompetitions();
+
+  const emptyEditValues: CompetitionRequest = {
+    name: "",
+    description: "",
+    comp_type: "",
+    comp_date: "",
+    season_id: 0,
+    round_no: 0,
+  };
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editValues, setEditValues] = useState<CompetitionRequest>(emptyEditValues);
+  const [saving, setSaving] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState<number | null>(null);
+  const [rowError, setRowError] = useState<{ id: number; message: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+
+  const fields = useMemo<(keyof CompetitionRequest)[]>(
+    () => ["name", "description", "comp_type", "comp_date", "season_id", "round_no"],
+    []
+  );
+
+  const resetState = () => {
+    setEditingId(null);
+    setEditValues(emptyEditValues);
+    setRowError(null);
+  };
+
+  const startEdit = (competition: CompetitionResponse) => {
+    setEditingId(competition.id);
+    setEditValues({
+      name: competition.name,
+      description: competition.description,
+      comp_type: competition.comp_type,
+      comp_date: competition.comp_date,
+      season_id: competition.season_id,
+      round_no: competition.round_no,
+    });
+    setRowError(null);
+    setDeleteConfirm(null);
+  };
+
+  const handleSave = async (competitionId: number) => {
+    setSaving(competitionId);
+    setRowError(null);
+
+    try {
+      const payload: CompetitionRequest = {
+        name: editValues.name.trim(),
+        description: editValues.description.trim(),
+        comp_type: editValues.comp_type.trim(),
+        comp_date: editValues.comp_date.trim(),
+        season_id: editValues.season_id,
+        round_no: editValues.round_no,
+      };
+
+      await updateCompetitionById(competitionId, payload);
+      resetState();
+      await refetch();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Misslyckades att uppdatera.";
+      setRowError({ id: competitionId, message });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const handleDelete = async (competitionId: number) => {
+    setDeleting(competitionId);
+    setRowError(null);
+    setDeleteConfirm(null);
+
+    try {
+      await deleteCompetitionById(competitionId);
+      await refetch();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Misslyckades att radera.";
+      setRowError({ id: competitionId, message });
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   return (
-    <div className="mb-6 flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Tävlingar</h2>
+    <div className="mb-6 h-fit flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold text-center mb-4">Tävlingar</h2>
+
       {error && <CalloutMessage message={error} color="red" />}
+
       {loading ? (
         <div className="flex items-center justify-center py-8">
           <Spinner size="3" />
           <span className="ml-2">Hämtar tävlingar...</span>
         </div>
-      ) : competitionList.length > 0 ? (
-        <ul className="space-y-4">
-          {competitionList.map((comp) => {
-            const isRegistered = registrationStatus[comp.id] === true;
-            const isChecking = checkingRegistration[comp.id] === true;
+      ) : compList && compList.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-gray-300">
+                {fields.map((f) => (
+                  <th key={f} className="p-2 font-semibold text-gray-700 text-left capitalize">
+                    {f.replace("_", " ")}
+                  </th>
+                ))}
+                <th className="text-center p-2 font-semibold text-gray-700">Åtgärder</th>
+              </tr>
+            </thead>
 
-            return (
-              <li key={comp.id} className="m-2 p-4 border border-gray-300 rounded-lg flex flex-col">
-                <p>
-                  <b>{comp.name}</b> - {comp.comp_date}
-                </p>
+            <tbody>
+              {compList.map((competition) => {
+                const isEditing = editingId === competition.id;
+                const isSavingRow = saving === competition.id;
+                const isDeletingRow = deleting === competition.id;
+                const showDeleteConfirm = deleteConfirm === competition.id;
+                const errorForRow = rowError?.id === competition.id;
 
-                {isChecking ? (
-                  <div className="flex items-center py-2">
-                    <Spinner size="2" />
-                    <span className="ml-2 text-sm">Kontrollerar registrering...</span>
-                  </div>
-                ) : isRegistered ? (
-                  <>
-                    <p className="text-sm text-green-600 mb-2">
-                      ✓ Du är registrerad för denna tävling
-                    </p>
-                  </>
-                ) : (
-                  <RegisterToCompForm
-                    id={comp.id}
-                    name={comp.name}
-                    comp_date={comp.comp_date}
-                    description={comp.description}
-                    comp_type={comp.comp_type}
-                    season_id={comp.season_id}
-                    round_no={comp.round_no}
-                    onRegistrationSuccess={() => refreshRegistrationStatus(comp.id)}
-                  />
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                return (
+                  <tr key={competition.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    {fields.map((field) => (
+                      <td key={field} className="p-2">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editValues[field]}
+                            onChange={(e) =>
+                              setEditValues({ ...editValues, [field]: e.target.value })
+                            }
+                            className="w-full px-2 py-1 border border-gray-300 rounded"
+                            disabled={isSavingRow}
+                          />
+                        ) : (
+                          <span className="text-gray-800">{competition[field]}</span>
+                        )}
+                      </td>
+                    ))}
+
+                    <td className="p-2">
+                      <div className="flex items-center justify-center gap-2">
+                        {isEditing ? (
+                          <>
+                            <Button
+                              onClick={() => handleSave(competition.id)}
+                              disabled={isSavingRow}
+                              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded disabled:opacity-50"
+                              size="1"
+                            >
+                              {isSavingRow ? <Spinner size="1" /> : <Check className="w-4 h-4" />}
+                            </Button>
+
+                            <Button
+                              onClick={resetState}
+                              disabled={isSavingRow}
+                              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded disabled:opacity-50"
+                              size="1"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              onClick={() => startEdit(competition)}
+                              disabled={isSavingRow || isDeletingRow || editingId !== null}
+                              className="bg-[#505654] hover:bg-[#868f79] text-white px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                              size="1"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+
+                            {showDeleteConfirm ? (
+                              <>
+                                <Button
+                                  onClick={() => handleDelete(competition.id)}
+                                  disabled={isDeletingRow}
+                                  className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs disabled:opacity-50"
+                                  size="1"
+                                >
+                                  {isDeletingRow ? <Spinner size="1" /> : "Bekräfta"}
+                                </Button>
+
+                                <Button
+                                  onClick={() => setDeleteConfirm(null)}
+                                  disabled={isDeletingRow}
+                                  className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs disabled:opacity-50"
+                                  size="1"
+                                >
+                                  Avbryt
+                                </Button>
+                              </>
+                            ) : (
+                              <Button
+                                onClick={() => setDeleteConfirm(competition.id)}
+                                disabled={isSavingRow || isDeletingRow || editingId !== null}
+                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded disabled:opacity-50"
+                                size="1"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </div>
+
+                      {errorForRow && (
+                        <div className="mt-2">
+                          <CalloutMessage message={rowError.message} color="red" />
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       ) : (
-        <p>Inga tävlingar tillgängliga.</p>
+        <p className="text-center text-gray-500 py-4">Inga säsonger tillgängliga.</p>
       )}
     </div>
   );

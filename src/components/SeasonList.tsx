@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import CalloutMessage from "./user_feedback/CalloutMessage";
 import { Spinner, Button } from "@radix-ui/themes";
 import { useSeasons } from "@/hooks/useSeasons";
@@ -12,26 +12,29 @@ interface SeasonListProps {
 
 export function SeasonList({ refreshKey }: SeasonListProps = {}) {
   const { seasons: seasonList, loading, error, refetch } = useSeasons(refreshKey);
+
+  const emptyEditValues: SeasonRequest = { name: "", year: "" };
+
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editValues, setEditValues] = useState<{ name: string; year: string }>({
-    name: "",
-    year: "",
-  });
+  const [editValues, setEditValues] = useState<SeasonRequest>(emptyEditValues);
   const [saving, setSaving] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [rowError, setRowError] = useState<{ id: number; message: string } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
+  const fields = useMemo<(keyof SeasonRequest)[]>(() => ["name", "year"], []);
+
+  const resetState = () => {
+    setEditingId(null);
+    setEditValues(emptyEditValues);
+    setRowError(null);
+  };
+
   const startEdit = (season: SeasonResponse) => {
     setEditingId(season.id);
     setEditValues({ name: season.name, year: season.year });
     setRowError(null);
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditValues({ name: "", year: "" });
-    setRowError(null);
+    setDeleteConfirm(null);
   };
 
   const handleSave = async (seasonId: number) => {
@@ -40,13 +43,12 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
 
     try {
       const payload: SeasonRequest = {
-        name: editValues.name.trim() || undefined,
-        year: editValues.year.trim() || undefined,
+        name: editValues.name.trim(),
+        year: editValues.year.toString().trim(),
       };
 
       await updateSeasonById(seasonId, payload);
-      setEditingId(null);
-      setEditValues({ name: "", year: "" });
+      resetState();
       await refetch();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Misslyckades att uppdatera säsong.";
@@ -75,7 +77,9 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
   return (
     <div className="mb-6 h-fit flex flex-col bg-white/90 backdrop-blur p-4 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-center mb-4">Säsonger</h2>
+
       {error && <CalloutMessage message={error} color="red" />}
+
       {loading ? (
         <div className="flex items-center justify-center py-8">
           <Spinner size="3" />
@@ -87,34 +91,44 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
             <thead>
               <tr className="border-b border-gray-300">
                 <th className="text-left p-2 font-semibold text-gray-700">ID</th>
-                <th className="text-left p-2 font-semibold text-gray-700">Namn</th>
+                {fields.map((f) => (
+                  <th key={f} className="text-left p-2 font-semibold text-gray-700 capitalize">
+                    {f}
+                  </th>
+                ))}
                 <th className="text-center p-2 font-semibold text-gray-700">Åtgärder</th>
               </tr>
             </thead>
+
             <tbody>
               {seasonList.map((season) => {
                 const isEditing = editingId === season.id;
-                const isSaving = saving === season.id;
-                const isDeleting = deleting === season.id;
+                const isSavingRow = saving === season.id;
+                const isDeletingRow = deleting === season.id;
                 const showDeleteConfirm = deleteConfirm === season.id;
                 const errorForRow = rowError?.id === season.id;
 
                 return (
                   <tr key={season.id} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="p-2 text-gray-800">{season.id}</td>
-                    <td className="p-2">
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editValues.name}
-                          onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
-                          className="w-full px-2 py-1 border border-gray-300 rounded"
-                          disabled={isSaving}
-                        />
-                      ) : (
-                        <span className="text-gray-800">{season.name}</span>
-                      )}
-                    </td>
+
+                    {fields.map((field) => (
+                      <td key={field} className="p-2">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editValues[field]}
+                            onChange={(e) =>
+                              setEditValues({ ...editValues, [field]: e.target.value })
+                            }
+                            className="w-full px-2 py-1 border border-gray-300 rounded"
+                            disabled={isSavingRow}
+                          />
+                        ) : (
+                          <span className="text-gray-800">{season[field]}</span>
+                        )}
+                      </td>
+                    ))}
 
                     <td className="p-2">
                       <div className="flex items-center justify-center gap-2">
@@ -122,16 +136,17 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
                           <>
                             <Button
                               onClick={() => handleSave(season.id)}
-                              disabled={isSaving}
-                              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded cursor-pointer disabled:opacity-50"
+                              disabled={isSavingRow}
+                              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded disabled:opacity-50"
                               size="1"
                             >
-                              {isSaving ? <Spinner size="1" /> : <Check className="w-4 h-4" />}
+                              {isSavingRow ? <Spinner size="1" /> : <Check className="w-4 h-4" />}
                             </Button>
+
                             <Button
-                              onClick={cancelEdit}
-                              disabled={isSaving}
-                              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded cursor-pointer disabled:opacity-50"
+                              onClick={resetState}
+                              disabled={isSavingRow}
+                              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded disabled:opacity-50"
                               size="1"
                             >
                               <X className="w-4 h-4" />
@@ -141,26 +156,28 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
                           <>
                             <Button
                               onClick={() => startEdit(season)}
-                              disabled={true} //TODO: fix update {isSaving || isDeleting || editingId !== null}
-                              className="bg-[#505654] hover:bg-[#868f79] text-white px-3 py-1 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                              disabled={isSavingRow || isDeletingRow || editingId !== null}
+                              className="bg-[#505654] hover:bg-[#868f79] text-white px-3 py-1 rounded disabled:opacity-50"
                               size="1"
                             >
                               <Pencil className="w-4 h-4" />
                             </Button>
+
                             {showDeleteConfirm ? (
                               <>
                                 <Button
                                   onClick={() => handleDelete(season.id)}
-                                  disabled={isDeleting}
-                                  className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs cursor-pointer disabled:opacity-50"
+                                  disabled={isDeletingRow}
+                                  className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs disabled:opacity-50"
                                   size="1"
                                 >
-                                  {isDeleting ? <Spinner size="1" /> : "Bekräfta"}
+                                  {isDeletingRow ? <Spinner size="1" /> : "Bekräfta"}
                                 </Button>
+
                                 <Button
                                   onClick={() => setDeleteConfirm(null)}
-                                  disabled={isDeleting}
-                                  className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs cursor-pointer disabled:opacity-50"
+                                  disabled={isDeletingRow}
+                                  className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs disabled:opacity-50"
                                   size="1"
                                 >
                                   Avbryt
@@ -169,8 +186,8 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
                             ) : (
                               <Button
                                 onClick={() => setDeleteConfirm(season.id)}
-                                disabled={isSaving || isDeleting || editingId !== null}
-                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded cursor-pointer disabled:opacity-50"
+                                disabled={isSavingRow || isDeletingRow || editingId !== null}
+                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded disabled:opacity-50"
                                 size="1"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -179,6 +196,7 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
                           </>
                         )}
                       </div>
+
                       {errorForRow && (
                         <div className="mt-2">
                           <CalloutMessage message={rowError.message} color="red" />

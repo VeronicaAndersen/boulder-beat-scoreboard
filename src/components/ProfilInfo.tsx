@@ -19,6 +19,7 @@ export default function ProfilInfo() {
           <p>Namn: {userInfo.name}</p>
         </div>
       ) : (
+        //TODO: get completed compsscore for the climber
         <p>Ingen information tillgänglig.</p>
       )}
     </div>
