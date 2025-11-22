@@ -21,20 +21,15 @@ export default function RegisterToCompForm({
   const handleRegidtration = async () => {
     setLoading(true);
     setErrorMessage(null);
-    try {
-      const result = await registerClimberToCompetition(id, level);
 
-      if (!result.success) {
-        setErrorMessage(result.message);
-      } else {
-        setErrorMessage(null);
-        // Notify parent component to refresh registration status
-        if (onRegistrationSuccess) {
-          onRegistrationSuccess();
-        }
+    try {
+      await registerClimberToCompetition(id, level);
+
+      if (onRegistrationSuccess) {
+        onRegistrationSuccess();
       }
     } catch (error) {
-      setErrorMessage("Ett fel uppstod vid anmälan.");
+      setErrorMessage(error?.message || "Ett fel uppstod vid anmälan.");
       console.error(error);
     } finally {
       setLoading(false);
@@ -107,6 +102,7 @@ export default function RegisterToCompForm({
           </Flex>
         </Dialog.Content>
       </Dialog.Root>
+
       {errorMessage && <CalloutMessage message={errorMessage} color="red" />}
     </>
   );

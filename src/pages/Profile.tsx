@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { SeasonForm } from "@/components/forms/SeasonForm";
 import { SeasonList } from "@/components/SeasonList";
 import { CompetitionForm } from "@/components/forms/CompetitionForm";
-import { CompetitionList, ActiveCompetition } from "@/components/CompetitionsPage";
+import { ActiveCompetition } from "@/components/ActiveCompetition";
 import { Box, Button, Tabs } from "@radix-ui/themes/components/index";
 import useGetUserInfo from "@/hooks/useGetUserInfo";
 import CalloutMessage from "@/components/user_feedback/CalloutMessage";
 import ProfilInfo from "@/components/ProfilInfo";
+import { AssignToCompetitionsList } from "@/components/AssignToCompetitionsList";
+import { CompetitionList } from "@/components/CompetitionList";
 
 export default function Profile() {
   const { setClimber, setToken } = useAuthStore();
@@ -59,7 +61,7 @@ export default function Profile() {
 
           <Box pt="3">
             <Tabs.Content value="competition">
-              <CompetitionList />
+              <AssignToCompetitionsList />
             </Tabs.Content>
 
             <Tabs.Content value="active_competition">
@@ -75,6 +77,7 @@ export default function Profile() {
                 <div className="grid grid-cols-1 gap-2">
                   <SeasonList refreshKey={seasonRefreshKey} />
                   <CompetitionList />
+
                   <SeasonForm onSeasonCreated={() => setSeasonRefreshKey((prev) => prev + 1)} />
                   <CompetitionForm />
                 </div>
