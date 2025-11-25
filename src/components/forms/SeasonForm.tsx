@@ -8,7 +8,7 @@ interface SeasonFormProps {
   onSeasonCreated?: () => void;
 }
 
-const initialSeasonData: SeasonRequest = { name: "", year: "" };
+const initialSeasonData: SeasonRequest = { name: "", year: null };
 
 export function SeasonForm({ onSeasonCreated }: SeasonFormProps = {}) {
   const { values: seasonData, handleChange, reset: resetForm } = useForm(initialSeasonData);

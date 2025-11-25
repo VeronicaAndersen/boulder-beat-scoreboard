@@ -62,13 +62,13 @@ export type CompetitionResponse = {
 // Season
 export type SeasonRequest = {
   name?: string;
-  year?: string;
+  year?: number;
 };
 
 export type SeasonResponse = {
   id: number;
   name: string;
-  year: string;
+  year: number;
   created_at: string;
 };
 
@@ -92,19 +92,6 @@ export type ScoreRequest = {
   attempts_to_bonus: number;
   attempts_to_top: number;
 };
-
-// export type ScoreResponse = {
-//   attempts_total: number;
-//   got_bonus: boolean;
-//   got_top: boolean;
-//   attempts_to_bonus: number;
-//   attempts_to_top: number;
-//   problem_no: number;
-// };
-
-// export type ScoreBatch = {
-//   items: ScoreResponse[];
-// };
 
 export type ScoreBatchResponse = {
   problem_no: number;

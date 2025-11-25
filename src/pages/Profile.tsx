@@ -16,6 +16,7 @@ export default function Profile() {
   const { setClimber, setToken } = useAuthStore();
   const navigate = useNavigate();
   const [seasonRefreshKey, setSeasonRefreshKey] = useState(0);
+  const [competitionRefreshKey, setCompetitionRefreshKey] = useState(0);
 
   const { userInfo, messageInfo } = useGetUserInfo();
 
@@ -76,10 +77,12 @@ export default function Profile() {
               <Tabs.Content value="admin">
                 <div className="grid grid-cols-1 gap-2">
                   <SeasonList refreshKey={seasonRefreshKey} />
-                  <CompetitionList />
+                  <CompetitionList refreshKey={competitionRefreshKey} />
 
                   <SeasonForm onSeasonCreated={() => setSeasonRefreshKey((prev) => prev + 1)} />
-                  <CompetitionForm />
+                  <CompetitionForm
+                    onCompetitionCreated={() => setCompetitionRefreshKey((prev) => prev + 1)}
+                  />
                 </div>
               </Tabs.Content>
             )}

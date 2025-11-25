@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
-import { getCompetitions, checkRegistration } from "@/services/api";
+import { checkRegistration, getCompetitions } from "@/services/api";
 import { CompetitionResponse } from "@/types";
+import { useCallback, useEffect, useState } from "react";
 
 interface UseCompetitionsResult {
   competitions: CompetitionResponse[];
@@ -12,7 +12,7 @@ interface UseCompetitionsResult {
   refetch: () => Promise<void>;
 }
 
-export function useCompetitions(): UseCompetitionsResult {
+export function useCompetitions(refreshKey?: number): UseCompetitionsResult {
   const [competitions, setCompetitions] = useState<CompetitionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +41,6 @@ export function useCompetitions(): UseCompetitionsResult {
       if (data.length > 0) {
         setCompetitions(data);
 
-        // Check registration status for each competition
         const statusMap: Record<number, boolean> = {};
         const checkingMap: Record<number, boolean> = {};
 
@@ -75,7 +74,7 @@ export function useCompetitions(): UseCompetitionsResult {
 
   useEffect(() => {
     fetchCompetitions();
-  }, [fetchCompetitions]);
+  }, [fetchCompetitions, refreshKey]);
 
   return {
     competitions,

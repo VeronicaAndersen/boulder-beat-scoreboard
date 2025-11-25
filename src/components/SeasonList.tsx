@@ -13,7 +13,7 @@ interface SeasonListProps {
 export function SeasonList({ refreshKey }: SeasonListProps = {}) {
   const { seasons: seasonList, loading, error, refetch } = useSeasons(refreshKey);
 
-  const emptyEditValues: SeasonRequest = { name: "", year: "" };
+  const emptyEditValues: SeasonRequest = { name: "", year: null };
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValues, setEditValues] = useState<SeasonRequest>(emptyEditValues);
@@ -44,7 +44,7 @@ export function SeasonList({ refreshKey }: SeasonListProps = {}) {
     try {
       const payload: SeasonRequest = {
         name: editValues.name.trim(),
-        year: editValues.year.toString().trim(),
+        year: editValues.year,
       };
 
       await updateSeasonById(seasonId, payload);

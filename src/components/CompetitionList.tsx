@@ -6,8 +6,12 @@ import { updateCompetitionById, deleteCompetitionById } from "@/services/api";
 import { CompetitionResponse, CompetitionRequest } from "@/types";
 import { Pencil, Trash2, Check, X } from "lucide-react";
 
-export function CompetitionList() {
-  const { competitions: compList, loading, error, refetch } = useCompetitions();
+interface CompetitionListProps {
+  refreshKey?: number;
+}
+
+export function CompetitionList({ refreshKey }: CompetitionListProps = {}) {
+  const { competitions: compList, loading, error, refetch } = useCompetitions(refreshKey);
 
   const emptyEditValues: CompetitionRequest = {
     name: "",

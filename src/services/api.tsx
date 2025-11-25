@@ -42,16 +42,15 @@ export const registerClimber = (payload: RegistrationRequest) => api.post("/clim
 export const createCompetition = (payload: CompetitionRequest) =>
   api.post("/competition", payload, true);
 
-export const getCompetitions = (name?: string, year?: string) => {
+export const getCompetitions = (name?: string) => {
   const params = new URLSearchParams();
   if (name) params.append("name", name);
-  if (year) params.append("year", year);
 
   return api.get<CompetitionResponse[]>(`/competition?${params.toString()}`);
 };
 
 export const updateCompetitionById = (competitionId: number, payload: CompetitionRequest) =>
-  api.put(`/competition/${competitionId}`, payload, true);
+  api.patch(`/competition/${competitionId}`, payload, true);
 
 export const deleteCompetitionById = (competitionId: number) =>
   api.delete(`/competition/${competitionId}`, true);
@@ -68,16 +67,13 @@ export const registerClimberToCompetition = (competitionId: number, level: numbe
 // Seasons
 export const createSeason = (payload: SeasonRequest) => api.post("/season", payload, true);
 
-export const getSeasons = (payload: SeasonRequest) => {
-  const params = new URLSearchParams(payload as SeasonRequest);
-  return api.get<SeasonResponse[]>(`/season?${params.toString()}`, true);
-};
+export const getSeasons = () => api.get<SeasonResponse[]>(`/season`, true);
 
 export const getSeasonById = (seasonId: number) =>
   api.get<SeasonResponse>(`/season/${seasonId}`, true);
 
 export const updateSeasonById = (seasonId: number, payload: SeasonRequest) =>
-  api.put(`/season/${seasonId}`, payload, true);
+  api.patch(`/season/${seasonId}`, payload, true);
 
 export const deleteSeasonById = (seasonId: number) => api.delete(`/season/${seasonId}`, true);
 

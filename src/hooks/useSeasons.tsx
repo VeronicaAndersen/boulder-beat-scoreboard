@@ -18,7 +18,7 @@ export function useSeasons(refreshKey?: number): UseSeasonsResult {
     setLoading(true);
     setError(null);
     try {
-      const data = await getSeasons({});
+      const data = await getSeasons();
       if (data) {
         setSeasons(data);
       }

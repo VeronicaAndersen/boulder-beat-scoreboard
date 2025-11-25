@@ -13,12 +13,17 @@ const initialCompetitionData: CompetitionRequest = {
   round_no: 0,
 };
 
-export function CompetitionForm() {
+interface CompetitionFormProps {
+  onCompetitionCreated?: () => void;
+}
+
+export function CompetitionForm({ onCompetitionCreated }: CompetitionFormProps = {}) {
   const {
     values: competitionData,
     handleChange,
     reset: resetForm,
   } = useForm(initialCompetitionData);
+
   const {
     loading,
     error,
@@ -33,6 +38,7 @@ export function CompetitionForm() {
     if (success) {
       resetForm();
       resetMutation();
+      onCompetitionCreated?.();
     }
   };
 

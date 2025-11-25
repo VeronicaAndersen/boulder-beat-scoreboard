@@ -44,8 +44,8 @@ async function refreshToken() {
 // Generic API handler
 // ----------------------------------------------------------
 interface ApiOptions {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
-  headers?: Record<string, string>;
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  headers?: Record<string, number>;
   body?: string;
 }
 
@@ -102,6 +102,9 @@ export const api = {
 
   put: <T, B extends object>(path: string, body: B, auth = false) =>
     apiRequest<T>(`${apiUrl}${path}`, { method: "PUT", body: JSON.stringify(body) }, auth),
+
+  patch: <T, B extends object>(path: string, body: B, auth = false) =>
+    apiRequest<T>(`${apiUrl}${path}`, { method: "PATCH", body: JSON.stringify(body) }, auth),
 
   delete: <T>(path: string, auth = false) =>
     apiRequest<T>(`${apiUrl}${path}`, { method: "DELETE" }, auth),
